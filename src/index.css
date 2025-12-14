@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+a {
+  text-decoration: none;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+}
+
+
+/* Custom light #2C3284 scrollbar */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;                  /* thickness */
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;     /* no track color */
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: rgba(44, 50, 132, 0.35);   /* light version of #2C3284 */
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 50, 132, 0.55);   /* slightly darker on hover */
+  background-clip: content-box;
+}
+
+/* Firefox support */
+.scrollbar-custom {
+  scrollbar-color: rgba(44, 50, 132, 0.35) transparent;
+}

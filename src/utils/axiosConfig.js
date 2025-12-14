@@ -1,0 +1,50 @@
+// src/lib/axios.js
+import axios from "axios";
+
+const axiosConfig = axios.create({
+  baseURL: import.meta.env.VITE_REACT_APP_API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+axiosConfig.interceptors.request.use(
+  (config) => {
+    if (!navigator.onLine) {
+      const err = new Error("No internet connection");
+      err.isOffline = true;
+      return Promise.reject(err);
+    }
+
+    const auth = localStorage.getItem("auth");
+    if (auth) {
+      try {
+        const { access_token } = JSON.parse(auth);
+        if (access_token) {
+          config.headers.Authorization = `Bearer ${access_token}`;
+        }
+      } catch {
+        localStorage.removeItem("auth");
+      }
+    }
+
+    return config;
+  },
+  (err) => Promise.reject(err)
+);
+
+axiosConfig.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      localStorage.removeItem("auth");
+      if (!["/signin", "/login"].includes(window.location.pathname)) {
+        setTimeout(() => (window.location.href = "/login"), 500);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default axiosConfig;
