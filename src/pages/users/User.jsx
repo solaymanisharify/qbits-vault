@@ -6,8 +6,7 @@ import CustomModal from "../../components/global/modal/CustomModal";
 import axiosConfig from "../../utils/axiosConfig";
 import { GetRoles, GetUsers } from "../../services/User";
 import { Check, ChevronDown, Shield, UserIcon, X } from "lucide-react";
-
-
+import PermissionButton from "../../components/global/permissionButton/PermissionButton";
 
 const User = () => {
   const { addToast } = useToast();
@@ -20,6 +19,7 @@ const User = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [activeTab, setActiveTab] = useState("profile");
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -88,7 +88,15 @@ const User = () => {
   }, []);
 
   useEffect(() => {
-    GetUsers().then((res) => setUsers(res?.data?.data));
+    setIsLoading(true);
+    try {
+      GetUsers().then((res) => setUsers(res?.data?.data));
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -205,7 +213,11 @@ const User = () => {
       title: "Status",
       key: "status",
       className: "w-32",
-      render: (row) => <span className={`capitalize px-4 py-2 ${row.status === "active" ? "text-green-500 bg-green-50" : "text-yellow-500"} rounded-full text-xs`}>{row?.status}</span>,
+      render: (row) => (
+        <span className={`capitalize px-4 py-2 ${row.status === "active" ? "text-green-500 bg-green-50" : "text-yellow-500"} rounded-full text-xs`}>
+          {row?.status}
+        </span>
+      ),
     },
     {
       title: "Action",
@@ -214,39 +226,43 @@ const User = () => {
       render: (row) => {
         return (
           <div className="flex items-center justify-start gap-3 py-2">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={(e) => handleEdit(e, row)}
-              className="p-2 rounded-lg bg-blue-500/10 cursor-pointer hover:bg-blue-500/20 text-blue-600 border border-blue-400/20 transition-all"
-              aria-label="Edit user"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-            </motion.button>
+            <PermissionButton permission="user.edit">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => handleEdit(e, row)}
+                className="p-2 rounded-lg bg-blue-500/10 cursor-pointer hover:bg-blue-500/20 text-blue-600 border border-blue-400/20 transition-all"
+                aria-label="Edit user"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+              </motion.button>
+            </PermissionButton>
 
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              // onClick={handleDelete}
-              className="p-2 rounded-lg bg-red-500/10 cursor-pointer hover:bg-red-500/20 text-red-600 border border-red-400/20 transition-all"
-              aria-label="Delete user"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-            </motion.button>
+            <PermissionButton permission="user.delete">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                // onClick={handleDelete}
+                className="p-2 rounded-lg bg-red-500/10 cursor-pointer hover:bg-red-500/20 text-red-600 border border-red-400/20 transition-all"
+                aria-label="Delete user"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </motion.button>
+            </PermissionButton>
           </div>
         );
       },
@@ -323,14 +339,16 @@ const User = () => {
   return (
     <div className="p-4">
       <div className="flex justify-end">
-        <button
-          onClick={() => setOpenModel(true)}
-          className="bg-cyan-50 border border-cyan-200 text-cyan-600 py-2 px-3 mb-2 rounded-full hover:bg-cyan-100 cursor-pointer transition-colors"
-        >
-          Create User
-        </button>
+        <PermissionButton permission="user.create">
+          <button
+            onClick={() => setOpenModel(true)}
+            className="bg-cyan-50 border border-cyan-200 text-cyan-600 py-2 px-3 mb-2 rounded-full hover:bg-cyan-100 cursor-pointer transition-colors"
+          >
+            Create User
+          </button>
+        </PermissionButton>
       </div>
-      <DataTable columns={columns} data={users} paginationData={{}} className="h-[calc(100vh-150px)]" />
+      <DataTable columns={columns} data={users} isLoading={isLoading} paginationData={{}} className="h-[calc(100vh-150px)]" />
 
       {openModel && (
         <CustomModal

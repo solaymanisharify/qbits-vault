@@ -7,8 +7,7 @@ import { AiOutlineDelete, AiOutlinePlus } from "react-icons/ai";
 import { AnimatePresence, motion } from "framer-motion";
 // import JsBarcode from "jsbarcode";
 import { useForm } from "react-hook-form";
-import { ArrowDownCircle, ArrowUpCircle, ChevronDown, ChevronRight, DollarSign, History, Package, X } from "lucide-react";
-import JsBarcode from "jsbarcode";
+import { ArrowDownCircle, ArrowUpCircle, ChevronDown, ChevronRight, History, Package, X } from "lucide-react";
 
 const Vault = () => {
   const [vaults, setVaults] = useState([]);

@@ -7,7 +7,8 @@ import CustomModal from "../../components/global/modal/CustomModal";
 import { useToast } from "../../hooks/useToast";
 import { ApproveCashIn, ApproveCashOut, GetPendingCashIn, GetPendingCashOut, VerifyCashIn, VerifyCashOut } from "../../services/Cash"; // add VerifyCashIn
 import { BarcodeScannerModal } from "./BarcodeScannerModal";
-import { GetPendingReconciliations } from "../../services/Reconcile";
+import { GetPendingReconciliations, VerifyReconcile } from "../../services/Reconcile";
+import ReconcileVerifyModel from "../../components/verifications/reconcile/ReconcileVerifyModel";
 
 const Verifications = () => {
   const { addToast } = useToast();
@@ -22,6 +23,8 @@ const Verifications = () => {
   const permissions = useSelector((state) => state.auth.permissions || []);
   const hasPermission = (perm) => permissions.includes(perm);
 
+  console.log({ permissions });
+
   // Verify Modal State
   const [openVerifyModal, setOpenVerifyModal] = useState(false);
   const [openApproveModal, setOpenApproveModal] = useState(false);
@@ -31,6 +34,11 @@ const Verifications = () => {
   const [verifyAction, setVerifyAction] = useState("verify"); // verify, approve, reject
   const [OpenOtpModal, setOpenOtpModal] = useState(false);
   const [otpModalSubmitAction, setOtpModalSubmitAction] = useState("");
+
+  // Reconcile
+  const [openReconcileVerifyModel, setOpenReconcileVerifyModel] = useState(false);
+  const [selectedReconcile, setSelectedReconcile] = useState();
+
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
   const [note, setNote] = useState("");
@@ -126,6 +134,22 @@ const Verifications = () => {
     setOpenCashoutApproveModal(true);
   };
 
+  // reconcile
+  const handleReconcileVerifyClick = (reconcile) => {
+    console.log({ reconcile });
+    setSelectedReconcile(reconcile);
+    setVerifyAction("verify");
+    setNote("");
+    setOpenReconcileVerifyModel(true);
+  };
+  const handleReconcileApproveClick = (reconcile) => {
+    console.log({ reconcile });
+    setSelectedReconcile(reconcile);
+    setVerifyAction("approve");
+    setNote("");
+    setOpenReconcileVerifyModel(true);
+  };
+
   console.log({ selectedCashOut });
 
   // Submit verification
@@ -192,6 +216,40 @@ const Verifications = () => {
     } catch (err) {
       addToast({ type: "error", message: "Verification failed" });
     }
+  };
+
+  const handleReconcileVerifySubmit = async () => {
+    if (!selectedReconcile) return;
+    setOtpModalSubmitAction("reconcile");
+    setOpenOtpModal(true);
+  };
+
+  const hanleReconcileConfirmVerify = async () => {
+    if (otp !== "1234") {
+      setOtpError("Invalid OTP");
+      return;
+    }
+
+    try {
+      if (verifyAction === "verify") {
+        await VerifyReconcile(selectedReconcile.id, verifyAction, note);
+        setOpenOtpModal(false);
+        setOpenReconcileVerifyModel(false);
+        addToast({ type: "success", message: `${verifyAction.charAt(0).toUpperCase() + verifyAction.slice(1)} successful!` });
+      } else if (verifyAction === "approve") {
+        await ApproveCashIn(selectedCashIn.id, note);
+        setOpenOtpModal(false);
+        setOpenApproveModal(false);
+        addToast({ type: "success", message: `${verifyAction.charAt(0).toUpperCase() + verifyAction.slice(1)} successful!` });
+      }
+
+      setOpenVerifyModal(false);
+      fetchPendingCashIns(); // refresh list
+    } catch (err) {
+      addToast({ type: "error", message: "Verification failed" });
+    }
+
+    addToast({ type: "success", message: "Verification successful!" });
   };
 
   const cashInPendingColumns = [
@@ -483,11 +541,12 @@ const Verifications = () => {
       render: (row) => <span className="font-mono text-cyan-400">{row?.vault.vault_id}</span>,
     },
     {
-      title: "Expected Amount (৳)",
+      title: "Expected Amount(৳)",
       key: "bag_barcode",
       className: "w-34",
-      render: (row) => <span className="">{parseFloat(row.expected_balance).toLocaleString()}</span>,
+      render: (row) => <span className="">{parseFloat(row?.expected_balance).toLocaleString()}</span>,
     },
+
     {
       title: "Amount (৳)",
       key: "cash_in_amount",
@@ -575,11 +634,11 @@ const Verifications = () => {
               Verify
             </motion.button>
           )} */}
-            {hasPermission("cash-out.verify") && !isVerified && (
+            {hasPermission("reconciliation.verify") && !isVerified && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleCashOutVerifyClick(row, "verify")}
+                onClick={() => handleReconcileVerifyClick(row)}
                 className="px-4 py-1 bg-cyan-50 cursor-pointer text-cyan-500 border border-cyan-200 rounded-full font-medium  flex items-center gap-2"
               >
                 {/* <Check className="w-5 h-5" /> */}
@@ -588,12 +647,12 @@ const Verifications = () => {
             )}
 
             {/* Approve Button */}
-            {hasPermission("cash-out.approve") && (
+            {hasPermission("reconciliation.approve") && (
               <>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleCashOutApproveClick(row, "approve")}
+                  onClick={() => handleReconcileApproveClick(row)}
                   className={`px-4 py-1 bg-emerald-50 cursor-pointer ${
                     isVerified ? "flex" : "hidden"
                   } text-green-500 border border-emerald-200 rounded-full  flex items-center gap-2`}
@@ -1047,6 +1106,16 @@ const Verifications = () => {
             </CustomModal>
           )}
         </AnimatePresence>
+
+        {/* // Reconcile section */}
+        {openReconcileVerifyModel && (
+          <ReconcileVerifyModel
+            selectedReconcile={selectedReconcile}
+            setOpenReconcileVerifyModel={setOpenReconcileVerifyModel}
+            handleReconcileVerifySubmit={handleReconcileVerifySubmit}
+          />
+        )}
+
         {/* Otp modal */}
         <AnimatePresence>
           {OpenOtpModal && (
@@ -1095,7 +1164,13 @@ const Verifications = () => {
                       Cancel
                     </button>
                     <button
-                      onClick={otpModalSubmitAction === "cashin" ? handleFinalVerifyConfirm : handleCashOutVerifySubmit}
+                      onClick={
+                        otpModalSubmitAction === "cashin"
+                          ? handleFinalVerifyConfirm
+                          : otpModalSubmitAction === "reconcile"
+                            ? hanleReconcileConfirmVerify
+                            : handleCashOutVerifySubmit
+                      }
                       className="px-10 py-3 cursor-pointer bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-green-500/30 transition"
                     >
                       Verify

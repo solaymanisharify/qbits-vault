@@ -81,7 +81,7 @@ const Sidebar = ({ sidebarWidth, isMinimized, setIsMinimized, isMobile }) => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className={`${isMinimized ? "hidden" : "flex"}`}>{user?.name}</span>
+              <span className={`text-sm ${isMinimized ? "hidden" : "flex"}`}>{user?.name}</span>
             </Link>
             <button
               onClick={handleLogout}
@@ -90,7 +90,7 @@ const Sidebar = ({ sidebarWidth, isMinimized, setIsMinimized, isMobile }) => {
               } flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-red-500/10 rounded-xl transition`}
             >
               <FiLogOut size={20} />
-              <span className={`${isMinimized ? "hidden" : "flex"}`}>Logout</span>
+              <span className={`text-sm ${isMinimized ? "hidden" : "flex"}`}>Logout</span>
             </button>
           </div>
         </div>
