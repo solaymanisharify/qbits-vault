@@ -1,0 +1,51 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    name: Deploy via FTP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Set Up Environment Variables
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "VITE_REACT_APP_API_BASE_URL=${{ secrets.LIVE_VITE_REACT_APP_API_BASE_URL }}" >> .env
+            echo "VITE_REACT_APP_STORAGE_URL=${{ secrets.LIVE_VITE_REACT_APP_STORAGE_URL }}" >> .env
+            echo "FTP_SERVER=${{ secrets.LIVE_FTP_SERVER }}" >> $GITHUB_ENV
+            echo "FTP_USERNAME=${{ secrets.LIVE_FTP_USERNAME }}" >> $GITHUB_ENV
+            echo "FTP_PASSWORD=${{ secrets.LIVE_FTP_PASSWORD }}" >> $GITHUB_ENV
+            # echo "SERVER_PATH=${{ secrets.LIVE_SERVER_DIR }}" >> $GITHUB_ENV
+          else
+            echo "VITE_REACT_APP_API_BASE_URL=${{ secrets.DEV_VITE_REACT_APP_API_BASE_URL }}" >> .env
+            echo "VITE_REACT_APP_STORAGE_URL=${{ secrets.DEV_VITE_REACT_APP_STORAGE_URL }}" >> .env
+            echo "FTP_SERVER=${{ secrets.DEV_FTP_SERVER }}" >> $GITHUB_ENV
+            echo "FTP_USERNAME=${{ secrets.DEV_FTP_USERNAME }}" >> $GITHUB_ENV
+            echo "FTP_PASSWORD=${{ secrets.DEV_FTP_PASSWORD }}" >> $GITHUB_ENV
+            # echo "SERVER_PATH=${{ secrets.SERVER_DIR }}" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Deploy to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ env.FTP_SERVER }}
+          username: ${{ env.FTP_USERNAME }}
+          password: ${{ env.FTP_PASSWORD }}
+          local-dir: dist/
+          protocol: ftp
+          log-level: verbose
