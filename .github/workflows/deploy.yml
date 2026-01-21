@@ -26,7 +26,6 @@ jobs:
             echo "FTP_SERVER=${{ secrets.LIVE_FTP_SERVER }}" >> $GITHUB_ENV
             echo "FTP_USERNAME=${{ secrets.LIVE_FTP_USERNAME }}" >> $GITHUB_ENV
             echo "FTP_PASSWORD=${{ secrets.LIVE_FTP_PASSWORD }}" >> $GITHUB_ENV
-            # echo "SERVER_PATH=${{ secrets.LIVE_SERVER_DIR }}" >> $GITHUB_ENV
           else
             echo "VITE_REACT_APP_API_BASE_URL=${{ secrets.DEV_VITE_REACT_APP_API_BASE_URL }}" >> .env
             echo "VITE_REACT_APP_STORAGE_URL=${{ secrets.DEV_VITE_REACT_APP_STORAGE_URL }}" >> .env
