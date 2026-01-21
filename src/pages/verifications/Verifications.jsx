@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Camera, Check, CheckCircle, Key, QrCode, Shield, XCircle } from "lucide-react";
+import { Camera, Check, CheckCircle, Key, QrCode, Shield, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import DataTable from "../../components/global/dataTable/DataTable";
@@ -472,14 +472,20 @@ const Verifications = () => {
   const reconcilePendingColumns = [
     {
       title: "Reconcile ID",
-      key: "vault_id",
-      className: "w-24",
-      render: (row) => <span className="font-mono text-cyan-400">{row.vault?.vault_id || row.vault_id}</span>,
+      key: "reconcile_tran_id",
+      className: "w-40",
+      render: (row) => <span className="font-mono text-cyan-400">{row?.reconcile_tran_id}</span>,
     },
     {
-      title: "Bag",
+      title: "Vault ID",
+      key: "reconcile_tran_id",
+      className: "w-24",
+      render: (row) => <span className="font-mono text-cyan-400">{row?.vault.vault_id}</span>,
+    },
+    {
+      title: "Expected Amount (৳)",
       key: "bag_barcode",
-      className: "w-64",
+      className: "w-34",
       render: (row) => (
         <div className="flex flex-wrap items-center gap-2 -ml-1 -mt-1">
           {row?.cash_out_bags?.length > 0 ? (
@@ -508,7 +514,7 @@ const Verifications = () => {
         <span
           className={`capitalize px-4 py-2 rounded-full text-xs ${
             row.verifier_status === "pending"
-              ? "bg-yellow-50 text-yellow-500"
+              ? "bg-yellow-50 text-yellow-600"
               : row.verifier_status === "verified"
                 ? "bg-green-50 text-green-500"
                 : "bg-gray-50 text-gray-500"
@@ -526,7 +532,27 @@ const Verifications = () => {
         <span
           className={`capitalize px-4 py-2 rounded-full text-xs ${
             row.status === "pending"
-              ? "bg-yellow-50 text-yellow-500"
+              ? "bg-yellow-50 text-yellow-600"
+              : row.status === "approved"
+                ? "bg-green-50 text-green-500"
+                : row.status === "rejected"
+                  ? "bg-red-100 text-red-700"
+                  : "bg-gray-50 text-gray-500"
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      title: "Status",
+      key: "status",
+      className: "w-40",
+      render: (row) => (
+        <span
+          className={`capitalize px-4 py-2 rounded-full text-xs ${
+            row.status === "pending"
+              ? "bg-yellow-50 text-yellow-600"
               : row.status === "approved"
                 ? "bg-green-50 text-green-500"
                 : row.status === "rejected"
@@ -647,7 +673,7 @@ const Verifications = () => {
             {activeTab === "reconcile" && (
               <div className="lg:p-8 text-center py-20">
                 <h2 className="text-lg font-medium text-gray-800 mb-6">Pending Reconciliations</h2>
-                <DataTable columns={reconcilePendingColumns} data={[]} className="h-[calc(100vh-220px)]" />
+                <DataTable columns={reconcilePendingColumns} data={allPendingReconcile} className="h-[calc(100vh-220px)]" />
               </div>
             )}
           </motion.div>
