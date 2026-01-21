@@ -8,6 +8,10 @@ import User from "../pages/users/User";
 import CashIn from "../pages/cashin/CashIn";
 import Vault from "../pages/vault/Vault";
 import Profile from "../pages/profile/Profile";
+import RolePermissionManager from "../pages/roleAndPermissions/RolePermissionManager";
+import Verifications from "../pages/verifications/Verifications";
+import CashOut from "../pages/cashout/CashOut";
+import Reconcile from "../pages/reconcile/Reconcile";
 
 const AppRoutes = () => {
   const Routes = [
@@ -41,8 +45,24 @@ const AppRoutes = () => {
           element: <CashIn />,
         },
         {
+          path: "/cashout",
+          element: <CashOut />,
+        },
+        {
+          path: "/reconcile",
+          element: <Reconcile />,
+        },
+        {
           path: "/profile",
           element: <Profile />,
+        },
+        {
+          path: "/verifications",
+          element: <Verifications />,
+        },
+        {
+          path: "/role-and-permissions",
+          element: <RolePermissionManager />,
         },
       ],
     },

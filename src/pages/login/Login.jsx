@@ -3,28 +3,33 @@ import { useNavigate } from "react-router-dom";
 import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { SignIn } from "../../services/Auth";
-import toast from "react-hot-toast";
+
 import { useToast } from "../../hooks/useToast";
+import { useDispatch } from "react-redux";
+import { login } from "../../store/authSlice";
+import ForgetPasswordModel from "../../components/forgetPassword/ForgetPasswordModel";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [openForgetPasswordModel, setOpenForgetPasswordModel] = useState(false);
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     try {
       SignIn({ email, password }).then((res) => {
-        console.log({ res });
         if (res?.success === true) {
           const auth = {
             access_token: res?.data?.access_token,
             user: res?.data?.user,
           };
+          dispatch(login(auth));
           localStorage.setItem("auth", JSON.stringify(auth));
           navigate("/");
         } else if (res?.status === 401) {
@@ -48,7 +53,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen   flex items-center justify-center px-4 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-r from-cyan-300/10 to-purple-300/10  flex items-center justify-center px-4 overflow-hidden relative">
       {/* Animated Background Orbs */}
       {/* <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
@@ -63,13 +68,13 @@ const Login = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="relative w-full max-w-md"
       >
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-10 overflow-hidden">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-xl p-10 overflow-hidden">
           {/* Glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 rounded-3xl -z-10"></div>
+          {/* <div className="absolute inset-0 bg-gradient-to-r from-cyan-300/10 to-purple-300/10 rounded-3xl -z-10"></div> */}
 
           <div className="text-center mb-10">
             {/* Logo / Icon */}
-            <motion.div
+            {/* <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
@@ -83,24 +88,24 @@ const Login = () => {
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                 />
               </svg>
-            </motion.div>
+            </motion.div> */}
 
-            <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">QBits Vault</h1>
-            <p className="text-gray-300 text-lg">Access your secure vault</p>
+            <h1 className="text-4xl font-bold text-gray-600 mb-2 tracking-tight">QBits Vault</h1>
+            <p className="text-gray-400 text-sm">Access your secure vault</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-xl blur-lg opacity-50 group-hover:opacity-80 transition-opacity"></div>
-              <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:bg-white/20 focus-within:bg-white/20">
-                <FiUser className="text-xl text-gray-300" />
+              <div className="absolute inset-0 bg-gray-100 rounded-xl blur-lg opacity-50 group-hover:opacity-80 transition-opacity"></div>
+              <div className="relative bg-gray-100 backdrop-blur-md border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:bg-white/20 focus-within:bg-white/20">
+                <FiUser className="text-xl text-gray-600" />
                 <input
                   type="text"
                   placeholder="Username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent text-white placeholder-gray-400 outline-none text-lg"
+                  className="w-full bg-transparent text-gray-600 placeholder-gray-400 outline-none text-lg"
                   required
                 />
               </div>
@@ -108,15 +113,15 @@ const Login = () => {
 
             {/* Password Field */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl blur-lg opacity-50 group-hover:opacity-80 transition-opacity"></div>
-              <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:bg-white/20 focus-within:bg-white/20">
-                <FiLock className="text-xl text-gray-300" />
+              <div className="absolute inset-0 bg-gray-100  rounded-xl blur-lg opacity-50 group-hover:opacity-80 transition-opacity"></div>
+              <div className="relative bg-gray-100 backdrop-blur-md border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:bg-white/20 focus-within:bg-white/20">
+                <FiLock className="text-xl text-gray-600" />
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent text-white placeholder-gray-400 outline-none text-lg flex-1"
+                  className="w-full bg-transparent text-gray-600 placeholder-gray-400 outline-none text-lg flex-1"
                   required
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-gray-400 hover:text-white transition">
@@ -128,17 +133,17 @@ const Login = () => {
             {/* Remember & Forgot */}
             <div className="flex justify-between items-center text-sm">
               <label className="flex items-center gap-3 cursor-pointer">
-                <input
+                {/* <input
                   type="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
                   className="w-5 h-5 rounded border-gray-500 bg-white/10 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0"
                 />
-                <span className="text-gray-300">Remember me</span>
+                <span className="text-gray-300">Remember me</span> */}
               </label>
-              <a href="#" className="text-cyan-400 hover:text-cyan-300 transition font-medium">
-                Forgot password?
-              </a>
+              <div onClick={() => setOpenForgetPasswordModel(true)} className="text-cyan-500 cursor-pointer hover:text-cyan-300 transition font-medium">
+                {/* Forgot password? */}
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -155,6 +160,8 @@ const Login = () => {
           <p className="text-center text-gray-400 text-sm mt-8">Product of QBits Computer</p>
         </div>
       </motion.div>
+
+      {openForgetPasswordModel && <ForgetPasswordModel isCloseModal={() => setOpenForgetPasswordModel(false)} />}
     </div>
   );
 };

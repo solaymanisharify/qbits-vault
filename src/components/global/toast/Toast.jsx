@@ -1,8 +1,8 @@
 // components/global/toast/Toast.jsx
 import { motion } from "framer-motion";
-import { IoClose } from "react-icons/io5";
-import { HiCheckCircle, HiXCircle, HiExclamation, HiInformationCircle } from "react-icons/hi";
 import { useEffect } from "react";
+import { HiCheckCircle, HiExclamation, HiInformationCircle, HiXCircle } from "react-icons/hi";
+import { IoClose } from "react-icons/io5";
 
 const icons = {
   success: <HiCheckCircle className="w-7 h-7" />,

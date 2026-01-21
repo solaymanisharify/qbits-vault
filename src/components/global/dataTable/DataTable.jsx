@@ -2,18 +2,18 @@ import { useEffect, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiSearch } from "react-icons/fi";
 import { motion } from "framer-motion";
 
-const DataTable = ({ columns, data, paginationData, changePage, onSearch,className }) => {
+const DataTable = ({ columns, data, paginationData, changePage, onSearch, className }) => {
   const [search, setSearch] = useState("");
 
-//   useEffect(() => {
-//     const timer = setTimeout(() => {
-//       // Call parent's search handler
-//       if (onSearch) {
-//         onSearch(search.trim());
-//       }
-//     }, 600);
-//     return () => clearTimeout(timer);
-//   }, [search, onSearch]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Call parent's search handler
+      if (onSearch) {
+        onSearch(search.trim());
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const generatePageNumbers = () => {
     if (!paginationData?.last_page) return [];
@@ -38,43 +38,53 @@ const DataTable = ({ columns, data, paginationData, changePage, onSearch,classNa
     return [...new Set(result)]; // remove duplicates
   };
 
-//   console.log({ paginationData });
+  const handlePageClick = (page) => {
+    if (typeof page !== "number") return;
+
+    // Find the correct link from pagination.links
+    const link = paginationData.links?.find((l) => l.page === page);
+    if (link?.url) {
+      // Extract query params and pass via changePage
+      const url = new URL(link.url);
+      const params = Object.fromEntries(url.searchParams);
+      changePage(params.page ? Number(params.page) : page);
+    } else {
+      changePage(page);
+    }
+  };
+
+  //   console.log({ paginationData });
 
   return (
-    <div className={`relative ${className} flex flex-col bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden`}>
-      <div className="p-6 border-b border-white/10 shrink-0">
+    <div className={`relative ${className} flex flex-col  backdrop-blur-xl rounded-2xl overflow-hidden`}>
+      <div className="p-6 border-b border-white/10 bg-white shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="text-xl font-semibold text-white"></h3>
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search transactions..."
+              placeholder="Search ..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 transition w-full sm:w-64"
+              className="pl-10 pr-4 py-2 bg-white/10 border border-gray-200 rounded-lg text-gray-600 placeholder-gray-400 focus:outline-none focus:border-cyan-400 transition w-full sm:w-64"
             />
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden relative">
+      <div className="flex-1 overflow-hidden relative bg-white">
         <div className="h-full overflow-y-auto scrollbar-custom ">
           <table className="w-full table-fixed border-collapse">
             <thead>
-              <tr className="text-left text-gray-400 border-b border-white/10">
+              <tr className="text-left text-gray-800 border-b border-white/10">
                 {columns.map((column, index) => (
                   <th
                     key={index}
-                    className={`px-6 py-2 text-left text-sm font-normal text-gray-300 sticky top-0 z-20 bg-[#465296] ${column?.className}`}
+                    className={`px-6 py-3 text-left text-xs font-semibold text-gray-800 sticky top-0 z-20 bg-gray-100 ${column?.className}`}
                     onClick={() => (column.iconClickAction ? column.iconClickAction() : null)}
                   >
                     <div
-                    // className={twMerge(
-                    //   "font-semibold w-full flex items-center text-[12px]",
-                    //   column.icon ? "justify-between" : "justify-start",
-                    //   column?.className
-                    // )}
                     >
                       <span>{column.title}</span>
                       {column.icon && (
@@ -97,8 +107,8 @@ const DataTable = ({ columns, data, paginationData, changePage, onSearch,classNa
                   className="border-b border-white/5 hover:bg-white/5 transition"
                 >
                   {columns.map((column, colIndex) => (
-                    <td key={colIndex} className={`px-6 py-4  text-start text-[14px] ${column?.className}`}>
-                      {column.render ? column.render(row, row, data.length) : row[column.key] || <span className="text-gray400">-</span>}
+                    <td key={colIndex} className={`px-6 py-4 text-gray-600 border-b border-gray-100  text-start text-[14px] ${column?.className}`}>
+                      {column.render ? column.render(row, row, data.length) : row[column.key] || <span className="">-</span>}
                     </td>
                   ))}
                   {/* <td className="px-6 py-4 text-gray-300">{tx.date}</td> */}
@@ -129,7 +139,7 @@ const DataTable = ({ columns, data, paginationData, changePage, onSearch,classNa
         </div>
       </div>
 
-      <div className="px-6 py-4 border-t border-white/10 bg-white/5 shrink-0">
+      <div className="px-6 py-2 border-t border-gray-50 bg-gray-50 shrink-0">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
           {/* Showing X to Y of Z */}
           <div>
@@ -153,11 +163,11 @@ const DataTable = ({ columns, data, paginationData, changePage, onSearch,classNa
               {generatePageNumbers(paginationData).map((page, index) => (
                 <button
                   key={index}
-                  onClick={() => typeof page === "number" && changePage(paginationData.links?.find((l) => l.label === page.toString())?.url)}
+                  onClick={() => handlePageClick(page)}
                   disabled={page === "..."}
                   className={`
               w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium transition-all
-              ${page === paginationData?.current_page ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50" : "hover:bg-white/10 text-gray-300"}
+              ${page === paginationData?.current_page ? "bg-cyan-50 text-cyan-500 border border-cyan-200" : "hover:bg-white/10 text-gray-500"}
               ${page === "..." ? "cursor-default text-gray-500" : "cursor-pointer"}
             `}
                 >

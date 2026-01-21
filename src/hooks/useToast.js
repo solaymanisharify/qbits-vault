@@ -1,5 +1,5 @@
 // hooks/useToast.js
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 let id = 0;
 const listeners = [];

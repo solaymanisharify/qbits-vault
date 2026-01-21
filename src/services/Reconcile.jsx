@@ -1,24 +1,25 @@
 import axiosConfig from "../utils/axiosConfig";
 
-export const GetVaults = async () => {
+export const GetReconciles = async () => {
   try {
-    const response = await axiosConfig.get(`/vault`);
+    const response = await axiosConfig.get(`/reconciles`);
     return response?.data;
   } catch (error) {
     console.error(error?.response?.data?.message);
   }
 };
-export const GetVaultBagById = async (vaultId, query = {}) => {
+export const StartReconcile = async (data) => {
   try {
-    const response = await axiosConfig.get(`/bag/${vaultId}${query ? `?${query}` : ""}`);
+    const response = await axiosConfig.post(`/reconcile`, data);
     return response?.data;
   } catch (error) {
     console.error(error?.response?.data?.message);
   }
 };
-export const CreateVault = async (data) => {
+
+export const GetPendingReconciliations = async () => {
   try {
-    const response = await axiosConfig.post(`/vault`, data);
+    const response = await axiosConfig.get(`/pending/reconciles`);
     return response?.data;
   } catch (error) {
     console.error(error?.response?.data?.message);

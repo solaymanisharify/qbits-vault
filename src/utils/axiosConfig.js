@@ -1,4 +1,3 @@
-// src/lib/axios.js
 import axios from "axios";
 
 const axiosConfig = axios.create({
@@ -17,10 +16,10 @@ axiosConfig.interceptors.request.use(
       return Promise.reject(err);
     }
 
-    const auth = localStorage.getItem("auth");
-    if (auth) {
+    const access_token = localStorage.getItem("access_token");
+    if (access_token) {
       try {
-        const { access_token } = JSON.parse(auth);
+        // const { access_token } = JSON.parse(auth);
         if (access_token) {
           config.headers.Authorization = `Bearer ${access_token}`;
         }
@@ -31,20 +30,21 @@ axiosConfig.interceptors.request.use(
 
     return config;
   },
-  (err) => Promise.reject(err)
+  (err) => Promise.reject(err),
 );
 
 axiosConfig.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("access_token");
       localStorage.removeItem("auth");
-      if (!["/signin", "/login"].includes(window.location.pathname)) {
-        setTimeout(() => (window.location.href = "/login"), 500);
+      if (!window.location.pathname.includes("/login")) {
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosConfig;
