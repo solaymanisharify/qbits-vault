@@ -486,25 +486,13 @@ const Verifications = () => {
       title: "Expected Amount (৳)",
       key: "bag_barcode",
       className: "w-34",
-      render: (row) => (
-        <div className="flex flex-wrap items-center gap-2 -ml-1 -mt-1">
-          {row?.cash_out_bags?.length > 0 ? (
-            row.cash_out_bags.map((bag, i) => (
-              <span key={i} className="inline-flex items-center px-3 py-1.5 bg-cyan-50 border border-cyan-200 text-xs font-medium rounded-full">
-                {bag?.bag?.barcode} - RN#{bag?.bag?.rack_number}
-              </span>
-            ))
-          ) : (
-            <span className="text-gray-400 text-xs">No bags</span>
-          )}
-        </div>
-      ),
+      render: (row) => <span className="">{parseFloat(row.expected_balance).toLocaleString()}</span>,
     },
     {
       title: "Amount (৳)",
       key: "cash_in_amount",
       className: "w-40",
-      render: (row) => <span className="">{parseFloat(row.cash_out_amount).toLocaleString()}</span>,
+      render: (row) => <span className="">{parseFloat(row.counted_balance).toLocaleString()}</span>,
     },
     {
       title: "Verifier Status",
