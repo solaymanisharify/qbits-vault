@@ -793,10 +793,12 @@ const Verifications = () => {
         <AnimatePresence>
           {openApproveModal && selectedCashIn && (
             <CustomModal isCloseModal={() => setOpenApproveModal(false)}>
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+              <div
+                className="max-h-[calc(90vh-80px)] overflow-y-auto px-2 sm:px-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+              >
                 <h2 className="text-xl font-bold text-center mb-8 text-gray-800">{verifyAction.charAt(0).toUpperCase() + verifyAction.slice(1)} Cash In</h2>
 
-                <div className="space-y-2 mb-8">
+                <div className="space-y-2 mb-2 lg:mb-8">
                   <p className="text-sm">
                     <span className="">Bag Barcode:</span>{" "}
                     <span className="font-mono font-medium text-cyan-600 text-md">
@@ -811,8 +813,8 @@ const Verifications = () => {
                   </p>
                 </div>
 
-                <div className="mb-8">
-                  <label className="block text-lg font-medium text-gray-700 mb-3">Scan Bag</label>
+                <div className="mb-2 lg:mb-8">
+                  <label className="block text-sm lg:text-lg font-medium text-gray-700 mb-3">Scan Bag</label>
                   {scannedBarcode ? (
                     <div className="p-4 bg-green-50 border border-green-300 rounded-lg text-center">
                       <p className="font-mono text-xl text-green-700">{scannedBarcode}</p>
@@ -823,10 +825,10 @@ const Verifications = () => {
                   ) : (
                     <button
                       onClick={() => setIsScannerOpen(true)}
-                      className="w-full flex items-center justify-center gap-3 p-6 border border-dashed border-cyan-400 rounded-xl hover:bg-cyan-50"
+                      className="lg:w-full flex items-center lg:justify-center gap-3 p-2 lg:p-6 border border-dashed border-cyan-400 rounded-xl hover:bg-cyan-50"
                     >
-                      <QrCode className="w-10 h-10 text-cyan-600" />
-                      <span className="text-cyan-600 font-medium">Tap to scan barcode</span>
+                      <QrCode className="lg:w-10 lg:h-10 text-cyan-600" />
+                      <span className="text-cyan-600 text-xs lg:text-sm font-medium">Tap to scan barcode</span>
                     </button>
                   )}
                 </div>
@@ -840,8 +842,8 @@ const Verifications = () => {
                   }}
                 />
 
-                <div className="mb-8">
-                  <label className="block text-lg font-medium text-gray-700 mb-3">Take Picture of Bag</label>
+                <div className="mb-2 lg:mb-8">
+                  <label className="block text-sm lg:text-lg font-medium text-gray-700 mb-3">Take Picture of Bag</label>
 
                   <div className="flex w-full gap-4">
                     {capturedPhoto ? (
@@ -857,7 +859,7 @@ const Verifications = () => {
                         className="flex  items-center gap-3 p-2 border border-dashed border-cyan-400 rounded-xl hover:bg-cyan-50 transition"
                       >
                         <Camera className="w-6 h-6 text-cyan-600" />
-                        <span className="text-cyan-600 text-sm font-medium">Tap to take photo</span>
+                        <span className="text-cyan-600 text-xs lg:text-sm font-medium">Tap to take photo</span>
                       </button>
                     )}
 
@@ -873,13 +875,13 @@ const Verifications = () => {
                   </div>
                 </div>
                 <div className="mb-8">
-                  <label className="block text-lg font-medium text-gray-700 mb-3">Note</label>
+                  <label className="block text-sm lg:text-lg font-medium text-gray-700 mb-3">Note</label>
                   <textarea
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Add a note about your decision..."
-                    className="w-full px-6 py-4 border border-gray-200 rounded-xl focus:border-cyan-500 outline-none resize-none"
-                    rows="4"
+                    className="w-full placeholder:text-sm px-6 py-4 border border-gray-200 rounded-xl focus:border-cyan-500 outline-none resize-none"
+                    rows="lg:4"
                   />
                 </div>
 
@@ -905,7 +907,7 @@ const Verifications = () => {
                     Confirm
                   </button>
                 </div>
-              </motion.div>
+              </div>
             </CustomModal>
           )}
         </AnimatePresence>
