@@ -12,7 +12,7 @@ const ReconcileVerifyModel = ({ setOpenReconcileVerifyModel, selectedReconcile, 
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
             <h2 className="text-xl font-bold text-center mb-8 text-gray-800">Verify Reconcile</h2>
 
-            <div className="space-y-2 mb-8">
+            <div className="space-y-2 text-gray-600 mb-8">
               <p className="text-sm">
                 <span className="">Reconcile ID:</span>{" "}
                 <span className="font-mono font-medium text-cyan-600 text-md">{selectedReconcile?.reconcile_tran_id}</span>

@@ -26,19 +26,20 @@ const ReconcileModal = ({ isClose, refetch }) => {
     setDropdownOpen(false);
   };
 
-  const handleSubmitRequest = () => {
+  const handleSubmitRequest = async () => {
     try {
-      StartReconcile({
+      await StartReconcile({
         vault_id: selectedVaultId,
         from_date: previousReconcileDate,
         to_date: today,
       });
+
+      // Refresh data
+      await refetch();
+      isClose();
     } catch (error) {
-      console.error(error);
-    } finally {
-      refetch();
+      console.error("Failed to start reconciliation:", error);
     }
-    isClose();
   };
 
   // const renderStepContent = () => {
@@ -221,10 +222,10 @@ const ReconcileModal = ({ isClose, refetch }) => {
                     <li
                       key={vault.id}
                       onClick={() => handleVaultSelect(vault.id)}
-                      className="px-4 py-2.5 hover:bg-cyan-50 cursor-pointer transition-colors flex justify-between items-center"
+                      className="px-4 py-2.5 text-gray-500 gap-2 hover:bg-cyan-50 cursor-pointer transition-colors flex items-center"
                     >
                       <span>{vault.name}</span>
-                      <span className="text-gray-500 text-sm">({vault.vault_id})</span>
+                      <span className="text-cyan-500  text-sm">({vault.vault_id})</span>
                     </li>
                   ))}
                 </motion.ul>
@@ -241,7 +242,6 @@ const ReconcileModal = ({ isClose, refetch }) => {
 
           <button
             onClick={handleSubmitRequest}
-            // disabled={!canGoNext()}
             className="min-w-[160px] px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Save

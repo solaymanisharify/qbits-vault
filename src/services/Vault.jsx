@@ -16,6 +16,14 @@ export const GetVaultBagById = async (vaultId, query = {}) => {
     console.error(error?.response?.data?.message);
   }
 };
+export const GetBagByBagId = async (bagId) => {
+  try {
+    const response = await axiosConfig.get(`/bag/${bagId}`);
+    return response?.data;
+  } catch (error) {
+    console.error(error?.response?.data?.message);
+  }
+};
 export const CreateVault = async (data) => {
   try {
     const response = await axiosConfig.post(`/vault`, data);

@@ -43,3 +43,12 @@ export const ApproveReconcile = async (id, note = "") => {
     console.error(error?.response?.data?.message);
   }
 };
+
+export const StartReconciliation = async (id) => {
+  try {
+    const response = await axiosConfig.post(`/reconcile/start/${id}`);
+    return response?.data;
+  } catch (error) {
+    console.error(error?.response?.data?.message);
+  }
+};

@@ -305,8 +305,117 @@ const Vault = () => {
   ];
 
   // Add this inside your component
+  //   const printBagBarcodes = (bags, vaultName) => {
+  //     const printWindow = window.open("", "_blank", "width=900,height=800");
+
+  //     if (!printWindow) {
+  //       alert("Please allow popups for printing barcode labels.");
+  //       return;
+  //     }
+
+  //     const htmlContent = `
+  // <!DOCTYPE html>
+  // <html>
+  // <head>
+  //   <meta charset="utf-8">
+  //   <title>Bag Barcodes - ${vaultName}</title>
+  //   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  //   <style>
+  //     body {
+  //       font-family: Arial, sans-serif;
+  //       padding: 30px;
+  //       background: #f5f5f5;
+  //       margin: 0;
+  //     }
+  //     h2 {
+  //       text-align: center;
+  //       margin-bottom: 40px;
+  //       color: #1e293b;
+  //     }
+  //     .label-container {
+  //       display: grid;
+  //       grid-template-columns: repeat(3, 1fr);
+  //       gap: 40px;
+  //       max-width: 800px;
+  //       margin: 0 auto;
+  //     }
+  //     .barcode-label {
+  //       background: white;
+  //       padding: 30px;
+  //       text-align: center;
+  //       border: 1px solid #ccc;
+  //       border-radius: 8px;
+  //       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  //     }
+  //     .barcode-label svg {
+  //       width: 100%;
+  //       height: 120px; /* Bigger height = easier to scan */
+  //       margin: 15px 0;
+  //     }
+  //     .barcode-info {
+  //       margin-top: 15px;
+  //       font-size: 16px;
+  //       font-weight: bold;
+  //       color: #1e293b;
+  //     }
+  //     @media print {
+  //       body { background: white; padding: 20px; }
+  //       .label-container { gap: 30px; }
+  //       .barcode-label { border: none; box-shadow: none; padding: 20px; }
+  //       @page { margin: 1cm; }
+  //     }
+  //   </style>
+  // </head>
+  // <body>
+  //   <h2>Bag Barcode Labels - ${vaultName}</h2>
+  //   <div class="label-container">
+  //     ${bags
+  //       .map(
+  //         (bag) => `
+  //       <div class="barcode-label">
+  //         <svg class="barcode" data-code="${bag.bag_identifier_barcode}"></svg>
+  //         <div class="barcode-info">${bag.barcode} - Rack #${bag.rack_number || "N/A"}</div>
+  //       </div>
+  //     `,
+  //       )
+  //       .join("")}
+  //   </div>
+
+  //   <script>
+  //     document.addEventListener("DOMContentLoaded", function() {
+  //       document.querySelectorAll(".barcode").forEach(function(svg) {
+  //         const code = svg.getAttribute("data-code");
+  //         JsBarcode(svg, code, {
+  //           format: "CODE128",
+  //           width: 3,              // Thicker bars = much easier to scan
+  //           height: 100,           // Taller barcode = better readability
+  //           displayValue: true,
+  //           fontSize: 18,
+  //           margin: 15,            // More quiet zone (white space) around barcode
+  //           flat: true,
+  //           background: "#ffffff",
+  //           lineColor: "#000000",  // Pure black for max contrast
+  //         });
+  //       });
+
+  //       // Auto open print dialog after rendering
+  //       setTimeout(() => {
+  //         window.print();
+  //         // window.close(); // Uncomment if you want auto-close after print
+  //       }, 1200); // Slightly longer delay to ensure all barcodes render
+  //     });
+  //   </script>
+  // </body>
+  // </html>
+  //   `;
+
+  //     printWindow.document.open();
+  //     printWindow.document.write(htmlContent);
+  //     printWindow.document.close();
+  //     printWindow.focus();
+  //   };
   const printBagBarcodes = (bags, vaultName) => {
-    const printWindow = window.open("", "_blank", "width=900,height=800");
+    const printWindow = window.open("", "_blank", "width=1000,height=900");
 
     if (!printWindow) {
       alert("Please allow popups for printing barcode labels.");
@@ -319,62 +428,74 @@ const Vault = () => {
 <head>
   <meta charset="utf-8">
   <title>Bag Barcodes - ${vaultName}</title>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: Arial, sans-serif;
-      padding: 30px;
-      background: #f5f5f5;
-      margin: 0;
+      padding: 15mm;
+      background: white;
     }
     h2 {
       text-align: center;
-      margin-bottom: 40px;
-      color: #1e293b;
+      margin-bottom: 20mm;
+      font-size: 28px;
     }
     .label-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
-      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 25mm;
+      max-width: 180mm;
       margin: 0 auto;
     }
     .barcode-label {
       background: white;
-      padding: 30px;
+      padding: 20mm;
       text-align: center;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      page-break-inside: avoid;
+      break-inside: avoid;
+      min-height: 80mm;
     }
     .barcode-label svg {
       width: 100%;
-      height: 120px; /* Bigger height = easier to scan */
-      margin: 15px 0;
+      max-width: 140mm;
+      height: auto;
+      margin: 0 auto 10mm;
+      display: block;
     }
     .barcode-info {
-      margin-top: 15px;
-      font-size: 16px;
+      font-size: 22px;
       font-weight: bold;
-      color: #1e293b;
+      margin-top: 8px;
+      color: #000;
+      line-height: 1.6;
     }
     @media print {
-      body { background: white; padding: 20px; }
-      .label-container { gap: 30px; }
-      .barcode-label { border: none; box-shadow: none; padding: 20px; }
-      @page { margin: 1cm; }
+      body { 
+        padding: 8mm;
+      }
+      .label-container { 
+        gap: 15mm;
+      }
+
+      @page { 
+        size: A4;
+        margin: 8mm;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>Bag Barcode Labels - ${vaultName}</h2>
   <div class="label-container">
     ${bags
       .map(
         (bag) => `
       <div class="barcode-label">
         <svg class="barcode" data-code="${bag.bag_identifier_barcode}"></svg>
-        <div class="barcode-info">${bag.barcode} - Rack #${bag.rack_number || "N/A"}</div>
       </div>
     `,
       )
@@ -382,27 +503,44 @@ const Vault = () => {
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      document.querySelectorAll(".barcode").forEach(function(svg) {
+    document.addEventListener("DOMContentLoaded", function () {
+      const barcodes = document.querySelectorAll(".barcode");
+
+      if (!window.JsBarcode) {
+        alert("JsBarcode library failed to load!");
+        return;
+      }
+
+      barcodes.forEach(function (svg) {
         const code = svg.getAttribute("data-code");
-        JsBarcode(svg, code, {
-          format: "CODE128",
-          width: 3,              // Thicker bars = much easier to scan
-          height: 100,           // Taller barcode = better readability
-          displayValue: true,
-          fontSize: 18,
-          margin: 15,            // More quiet zone (white space) around barcode
-          flat: true,
-          background: "#ffffff",
-          lineColor: "#000000",  // Pure black for max contrast
-        });
+
+        if (!code || code.trim() === "") {
+          svg.outerHTML = "<div style='color:red'>No barcode data</div>";
+          return;
+        }
+
+        try {
+          JsBarcode(svg, code, {
+            format: "CODE128",
+            width: 3,              // MUCH thicker bars
+            height: 110,           // MUCH taller barcode
+            displayValue: true,
+            fontSize: 24,          // Larger text
+            textMargin: 12,
+            margin: 10,            // Large quiet zone
+            background: "#FFFFFF",
+            lineColor: "#000000"
+          });
+        } catch (e) {
+          console.error("Barcode generation error:", e);
+          svg.outerHTML = "<div style='color:red'>Invalid: " + code + "</div>";
+        }
       });
 
-      // Auto open print dialog after rendering
+      // Auto-print after barcodes render
       setTimeout(() => {
         window.print();
-        // window.close(); // Uncomment if you want auto-close after print
-      }, 1200); // Slightly longer delay to ensure all barcodes render
+      }, 2000);
     });
   </script>
 </body>
@@ -819,26 +957,5 @@ const Vault = () => {
     </div>
   );
 };
-
-// const BarcodeDisplay = ({ value }) => {
-//   const svgRef = useRef();
-
-//   useEffect(() => {
-//     if (svgRef.current && value) {
-//       JsBarcode(svgRef.current, value, {
-//         format: "CODE128",
-//         width: 2,
-//         height: 60,
-//         displayValue: true,
-//         fontSize: 14,
-//         margin: 10,
-//         background: "transparent",
-//         lineColor: "#60a5fa",
-//       });
-//     }
-//   }, [value]);
-
-//   return <svg ref={svgRef}></svg>;
-// };
 
 export default Vault;

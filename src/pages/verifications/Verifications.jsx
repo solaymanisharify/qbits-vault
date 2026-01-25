@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, Check, CheckCircle, Key, QrCode, Shield, XCircle } from "lucide-react";
+import { Camera, Check, CheckCircle, QrCode, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import DataTable from "../../components/global/dataTable/DataTable";
@@ -9,6 +9,7 @@ import { ApproveCashIn, ApproveCashOut, GetPendingCashIn, GetPendingCashOut, Ver
 import { BarcodeScannerModal } from "./BarcodeScannerModal";
 import { GetPendingReconciliations, VerifyReconcile } from "../../services/Reconcile";
 import ReconcileVerifyModel from "../../components/verifications/reconcile/ReconcileVerifyModel";
+import ReconcileStart from "../../components/verifications/reconcile/ReconcileStart";
 
 const Verifications = () => {
   const { addToast } = useToast();
@@ -37,6 +38,7 @@ const Verifications = () => {
 
   // Reconcile
   const [openReconcileVerifyModel, setOpenReconcileVerifyModel] = useState(false);
+  const [openReconcileStartModel, setOpenReconcileStartModel] = useState(false);
   const [selectedReconcile, setSelectedReconcile] = useState();
 
   const [otp, setOtp] = useState("");
@@ -47,10 +49,33 @@ const Verifications = () => {
 
   const user = useSelector((state) => state.auth.user);
 
+  // 1. Read tab from URL when component mounts
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabFromUrl = params.get("tab");
+
+    if (tabFromUrl && ["cashin", "cashout", "reconcile"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+    // else keep default "cashin"
+  }, []);
+
+  // 2. Update URL when user changes tab
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+
+    // Update URL without full reload
+    const params = new URLSearchParams(window.location.search);
+    params.set("tab", newTab);
+
+    // Use replaceState → no new history entry (cleaner)
+    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+  };
+
   const tabs = [
-    { id: "cashin", label: "Cash In", icon: Shield },
-    { id: "cashout", label: "Cash Out", icon: Key },
-    { id: "reconcile", label: "Reconcile", icon: Check },
+    { id: "cashin", label: "Cash In" },
+    { id: "cashout", label: "Cash Out" },
+    { id: "reconcile", label: "Reconcile" },
   ];
 
   useEffect(() => {
@@ -143,11 +168,10 @@ const Verifications = () => {
     setOpenReconcileVerifyModel(true);
   };
   const handleReconcileApproveClick = (reconcile) => {
-    console.log({ reconcile });
     setSelectedReconcile(reconcile);
     setVerifyAction("approve");
     setNote("");
-    setOpenReconcileVerifyModel(true);
+    setOpenReconcileStartModel(true);
   };
 
   console.log({ selectedCashOut });
@@ -244,7 +268,7 @@ const Verifications = () => {
       }
 
       setOpenVerifyModal(false);
-      fetchPendingCashIns(); // refresh list
+      fetchPendingReconciliations();
     } catch (err) {
       addToast({ type: "error", message: "Verification failed" });
     }
@@ -622,18 +646,6 @@ const Verifications = () => {
 
         return (
           <div className="flex items-center justify-start gap-3 py-2">
-            {/* Verify Button */}
-            {/* {hasPermission("cash-in.verify") && row.verifier_status === "pending" && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleVerifyClick(row, "verify")}
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-medium shadow-md flex items-center gap-2"
-            >
-              <Check className="w-5 h-5" />
-              Verify
-            </motion.button>
-          )} */}
             {hasPermission("reconciliation.verify") && !isVerified && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -682,7 +694,7 @@ const Verifications = () => {
   console.log({ scannedBarcode });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-2 lg:px-4">
+    <div className="min-h-screen">
       <div className="bg-white py-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           {/* Tabs */}
@@ -691,12 +703,11 @@ const Verifications = () => {
               <motion.button
                 key={tab.id}
                 whileHover={{ scale: 1.05 }}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`flex items-center gap-3 lg:pb-4 px-2 border-b-2 transition-all  ${
                   activeTab === tab.id ? "border-cyan-600 text-cyan-600" : "border-transparent text-gray-600 hover:text-gray-800"
                 }`}
               >
-                <tab.icon className="w-6 h-6 hidden lg:flex" />
                 {tab.label}
               </motion.button>
             ))}
@@ -793,9 +804,7 @@ const Verifications = () => {
         <AnimatePresence>
           {openApproveModal && selectedCashIn && (
             <CustomModal isCloseModal={() => setOpenApproveModal(false)}>
-              <div
-                className="max-h-[calc(90vh-80px)] overflow-y-auto px-2 sm:px-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
-              >
+              <div className="max-h-[calc(90vh-80px)] overflow-y-auto px-2 sm:px-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                 <h2 className="text-xl font-bold text-center mb-8 text-gray-800">{verifyAction.charAt(0).toUpperCase() + verifyAction.slice(1)} Cash In</h2>
 
                 <div className="space-y-2 mb-2 lg:mb-8">
@@ -1118,10 +1127,20 @@ const Verifications = () => {
           />
         )}
 
+        {openReconcileStartModel && (
+          <ReconcileStart
+            selectedReconcile={selectedReconcile}
+            selectedCashIn={selectedCashIn}
+            setOpenApproveModal={setOpenApproveModal}
+            isCloseModal={()=>setOpenReconcileStartModel(false)}
+            // handleApproveSubmit={handleApproveSubmit}
+          />
+        )}
+
         {/* Otp modal */}
         <AnimatePresence>
           {OpenOtpModal && (
-            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
+            <div className="fixed inset-0 text-gray-600 bg-black/70 flex items-center justify-center z-[60]">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

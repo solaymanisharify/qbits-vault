@@ -1,17 +1,17 @@
-import { FiHome, FiSettings, FiLogOut, FiSend, FiDownload, FiRefreshCw, FiX, FiMenu } from "react-icons/fi";
+// Sidebar.jsx
 import { motion } from "framer-motion";
+import { FiHome, FiSettings, FiLogOut, FiSend, FiDownload, FiRefreshCw, FiX, FiMenu } from "react-icons/fi";
 import { AiOutlineUser } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import { CiInboxOut, CiVault } from "react-icons/ci";
 import { Logout } from "../../../services/Auth";
 import { Shield } from "lucide-react";
 
-const Sidebar = ({ sidebarWidth, isMinimized, setIsMinimized, isMobile }) => {
+const Sidebar = ({ isMobile, isMinimized, isDrawerOpen, setIsDrawerOpen, sidebarWidthClass }) => {
   const { pathname } = useLocation();
+  const user = JSON.parse(localStorage.getItem("auth"))?.user || {};
 
-  const user = JSON.parse(localStorage.getItem("auth"))?.user;
-
-  const isActive = (path) => pathname === path || pathname.startsWith(path + "/");
+  const isActive = (path) => path && (pathname === path || pathname.startsWith(path + "/"));
 
   const menuItems = [
     { icon: FiHome, label: "Overview", path: "/" },
@@ -33,69 +33,98 @@ const Sidebar = ({ sidebarWidth, isMinimized, setIsMinimized, isMobile }) => {
     });
   };
 
+  const positionClasses = isMobile
+    ? `fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] transform transition-transform duration-300 ease-in-out lg:hidden
+       ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"}`
+    : `relative z-30 ${sidebarWidthClass}`;
+
   return (
-    <>
-      <motion.aside
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`fixed left-0 top-0 h-full ${sidebarWidth} bg-white/10 backdrop-blur-3xl border-r border-gray-100 z-50 flex flex-col transition-all duration-300 ease-in-out`}
-      >
-        <div className="p-1 py-6 overflow-hidden">
-          <div className="flex items-center justify-center mb-10">
-            <div className="flex items-center gap-3">
-              <h1 className={`text-xl! font-semibold text-zinc-500 ${isMinimized ? "hidden" : "flex"}`}>{isMinimized ? "QBV" : "QBits Vault"}</h1>
-            </div>
-            {isMobile && (
-              <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 rounded-lg hover:bg-white/10 text-gray-400">
-                {isMinimized ? <FiMenu size={20} /> : <FiX size={20} />}
-              </button>
-            )}
-          </div>
+    <motion.aside
+      className={`
+        h-full bg-white/10 backdrop-blur-3xl border-r border-gray-100
+        flex flex-col overflow-y-auto ${positionClasses}
+      `}
+      animate={isMobile ? undefined : { width: isMinimized ? 64 : 220 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    >
+      <div className="p-4 py-6 flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10 px-2">
+          <h1 className={`text-xl font-semibold text-gray-500 ${isMinimized && !isMobile ? "hidden" : "block"}`}>
+            {isMinimized && !isMobile ? "QBV" : "QBits Vault"}
+          </h1>
 
-          <nav className="space-y-2">
-            {menuItems.map((item) => (
-              <>
-                <Link to={item?.path}>
-                  <motion.a
-                    key={item.label}
-                    whileHover={{ x: 8 }}
-                    className={`flex items-center gap-4 px-4 py-3 transition-all ${
-                      isActive(item.path) ? "  text-cyan-500! border-l-3 border-cyan-400/50" : "text-gray-300 hover:bg-white/10"
-                    }`}
-                  >
-                    <item.icon size={18} className={`${isActive(item.path) ? "text-cyan-500!" : "text-gray-600"}`} />
-                    <span className={`text-sm ${isMinimized ? "hidden" : "flex"} ${isActive(item.path) ? "text-cyan-500!" : "text-gray-600"}`}>
-                      {item.label}
-                    </span>
-                  </motion.a>
-                </Link>
-              </>
-            ))}
-          </nav>
-
-          <div className="absolute bottom-6">
-            <Link to="/profile" className={`w-full bg-transparent! flex items-center gap-3 ${isMinimized ? "px-2" : "px-4"} py-3 text-gray-600 transition`}>
-              <div className="border-2 border-gray-300 w-9 h-9 rounded-full overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className={`text-sm ${isMinimized ? "hidden" : "flex"}`}>{user?.name}</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className={`w-full bg-transparent! cursor-pointer hover:text-cyan-300 ${
-                isMinimized ? "" : "ml-2"
-              } flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-red-500/10 rounded-xl transition`}
-            >
-              <FiLogOut size={20} />
-              <span className={`text-sm ${isMinimized ? "hidden" : "flex"}`}>Logout</span>
+          {isMobile ? (
+            <button onClick={() => setIsDrawerOpen(false)} className="p-2 rounded-lg hover:bg-white/10 text-gray-300 -mr-2" aria-label="Close menu">
+              <FiX size={24} />
             </button>
-          </div>
+          ) : (
+            <button
+              onClick={() => setIsMinimized(!isMinimized)}
+              className="p-2 rounded-lg hover:bg-white/10 text-gray-400"
+              aria-label={isMinimized ? "Expand sidebar" : "Minimize sidebar"}
+            >
+              {isMinimized && <FiMenu size={20} />}
+            </button>
+          )}
         </div>
-      </motion.aside>
-    </>
+
+        {/* Navigation */}
+        <nav className="space-y-1.5 flex-1">
+          {menuItems.map((item) => (
+            <Link key={item.label} to={item.path ?? "#"} onClick={isMobile ? () => setIsDrawerOpen(false) : undefined} className="block">
+              <motion.div
+                whileHover={{ x: 6 }}
+                className={`
+                  flex items-center gap-4 px-4 py-3  transition-colors
+                  ${isActive(item.path) ? "text-cyan-400 border-l-2 border-cyan-500/70" : "text-gray-600 hover:bg-white/10"}
+                `}
+              >
+                <item.icon size={20} className={isActive(item.path) ? "text-cyan-400" : "text-gray-500"} />
+                <span className={`text-sm ${isMinimized && !isMobile ? "hidden" : "block"}`}>{item.label}</span>
+              </motion.div>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Bottom - Profile + Logout */}
+        <div className="mt-auto pt-6 border-t border-gray-100">
+          <Link
+            to="/profile"
+            onClick={isMobile ? () => setIsDrawerOpen(false) : undefined}
+            className={`
+              flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-white/10 
+              rounded-lg transition mb-2
+              ${isMinimized && !isMobile ? "justify-center px-2" : ""}
+            `}
+          >
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 flex-shrink-0">
+              <img
+                src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&w=880&q=80"
+                alt="User avatar"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className={`${isMinimized && !isMobile ? "hidden" : "block"}`}>{user.name || "User"}</span>
+          </Link>
+
+          <button
+            onClick={() => {
+              handleLogout();
+              if (isMobile) setIsDrawerOpen(false);
+            }}
+            className={`
+              w-full flex items-center gap-3 px-4 py-3 text-gray-600 
+               hover:text-red-500 cursor-pointer rounded-lg transition
+              ${isMinimized && !isMobile ? "justify-center px-2" : ""}
+            `}
+          >
+            <FiLogOut size={20} />
+            <span className={`${isMinimized && !isMobile ? "hidden" : "block"}`}>Logout</span>
+          </button>
+        </div>
+      </div>
+    </motion.aside>
   );
 };
 

@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 
-
 const CustomModal = ({ isCloseModal, children }) => {
   return (
     <div className="fixed inset-0 bg-black/70 flex flex-col z-50 overflow-y-auto">
@@ -16,7 +15,7 @@ const CustomModal = ({ isCloseModal, children }) => {
           <div className="flex justify-end p-4 pb-0">
             <X onClick={isCloseModal} className="text-2xl text-gray-500 hover:text-red-400 cursor-pointer" />
           </div>
-          <div className="px-10 pb-10 overflow-visible">{children}</div>
+          <div className="px-10 pb-10 text-gray-600 overflow-visible">{children}</div>
         </motion.div>
       </div>
     </div>

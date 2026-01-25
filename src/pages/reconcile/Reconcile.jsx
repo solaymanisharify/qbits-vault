@@ -28,16 +28,20 @@ const Reconcile = () => {
 
   const columns = [
     {
+      title: "Vault",
+      key: "reconcile_tran_id",
+      className: "w-30",
+      render: (row) => (
+        <span className="font-mono">
+          {row.vault?.vault_id} <span className="text-cyan-400">({row.vault?.name})</span>
+        </span>
+      ),
+    },
+    {
       title: "Reconcile Id",
       key: "reconcile_tran_id",
       className: "w-34",
       render: (row) => <span className="font-mono text-cyan-400">{row.reconcile_tran_id}</span>,
-    },
-    {
-      title: "Scope",
-      key: "scope_type",
-      className: "w-32",
-      render: (row) => <span className="">{row?.scope_type}</span>,
     },
     {
       title: "Amount",
