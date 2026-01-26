@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // uses localStorage
 import authReducer from "./authSlice";
+import reconciliationReducer from "./checkReconcile";
 
 // Persist config
 const persistConfig = {
@@ -17,6 +18,7 @@ const persistedReducer = persistReducer(persistConfig, authReducer);
 export const store = configureStore({
   reducer: {
     auth: persistedReducer,
+    reconciliation: reconciliationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

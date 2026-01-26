@@ -33,8 +33,6 @@ const Vault = () => {
 
   const watchedTotalRacks = watch("total_racks");
 
-  console.log({ selectedVault });
-
   useEffect(() => {
     setTotalRacks(watchedTotalRacks || "");
   }, [watchedTotalRacks]);
@@ -47,14 +45,24 @@ const Vault = () => {
   // };
   const generateBagCodes = () => {
     const year = new Date().getFullYear();
-    const paddedNumber = String(bagCounter).padStart(4, "0"); // 0001, 0002, etc.
 
-    const humanBarcode = `BAG${String(bagCounter).padStart(2, "0")}`; // BAG01
-    const scannableBarcode = `QBV-${year}-${paddedNumber}`; // QBV-2026-0001
+    const randomPart = String(Math.floor(Math.random() * 10000)).padStart(4, "0");
 
-    setBagCounter((prev) => prev + 1);
+    const scannableBarcode = `QVB-${year}-${randomPart}`;
+
+    const humanBarcode = `BAG${randomPart}`; // or keep your old BAG01 style — up to you
 
     return { humanBarcode, scannableBarcode };
+
+    // const year = new Date().getFullYear();
+    // const paddedNumber = String(bagCounter).padStart(4, "0"); // 0001, 0002, etc.
+
+    // const humanBarcode = `BAG${String(bagCounter).padStart(2, "0")}`; // BAG01
+    // const scannableBarcode = `QBV-${year}-${paddedNumber}`; // QBV-2026-0001
+
+    // setBagCounter((prev) => prev + 1);
+
+    // return { humanBarcode, scannableBarcode };
   };
 
   // const addBag = () => {
@@ -245,7 +253,6 @@ const Vault = () => {
         const handleEdit = (e) => {
           e.stopPropagation();
           // Your edit logic here
-          console.log("Edit vault:", row);
           // e.g., open edit modal with row data
           // setEditData(row);
           // setIsEditModalOpen(true);
@@ -254,7 +261,6 @@ const Vault = () => {
         const handleDelete = (e) => {
           e.stopPropagation();
           // Your delete logic here
-          console.log("Delete vault:", row);
           // e.g., show confirm dialog then call API
           if (window.confirm(`Delete vault "${row.name}"?`)) {
             // DeleteVault(row.id).then(() => fetchVaultData());
@@ -304,116 +310,6 @@ const Vault = () => {
     },
   ];
 
-  // Add this inside your component
-  //   const printBagBarcodes = (bags, vaultName) => {
-  //     const printWindow = window.open("", "_blank", "width=900,height=800");
-
-  //     if (!printWindow) {
-  //       alert("Please allow popups for printing barcode labels.");
-  //       return;
-  //     }
-
-  //     const htmlContent = `
-  // <!DOCTYPE html>
-  // <html>
-  // <head>
-  //   <meta charset="utf-8">
-  //   <title>Bag Barcodes - ${vaultName}</title>
-  //   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-  //   <style>
-  //     body {
-  //       font-family: Arial, sans-serif;
-  //       padding: 30px;
-  //       background: #f5f5f5;
-  //       margin: 0;
-  //     }
-  //     h2 {
-  //       text-align: center;
-  //       margin-bottom: 40px;
-  //       color: #1e293b;
-  //     }
-  //     .label-container {
-  //       display: grid;
-  //       grid-template-columns: repeat(3, 1fr);
-  //       gap: 40px;
-  //       max-width: 800px;
-  //       margin: 0 auto;
-  //     }
-  //     .barcode-label {
-  //       background: white;
-  //       padding: 30px;
-  //       text-align: center;
-  //       border: 1px solid #ccc;
-  //       border-radius: 8px;
-  //       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  //     }
-  //     .barcode-label svg {
-  //       width: 100%;
-  //       height: 120px; /* Bigger height = easier to scan */
-  //       margin: 15px 0;
-  //     }
-  //     .barcode-info {
-  //       margin-top: 15px;
-  //       font-size: 16px;
-  //       font-weight: bold;
-  //       color: #1e293b;
-  //     }
-  //     @media print {
-  //       body { background: white; padding: 20px; }
-  //       .label-container { gap: 30px; }
-  //       .barcode-label { border: none; box-shadow: none; padding: 20px; }
-  //       @page { margin: 1cm; }
-  //     }
-  //   </style>
-  // </head>
-  // <body>
-  //   <h2>Bag Barcode Labels - ${vaultName}</h2>
-  //   <div class="label-container">
-  //     ${bags
-  //       .map(
-  //         (bag) => `
-  //       <div class="barcode-label">
-  //         <svg class="barcode" data-code="${bag.bag_identifier_barcode}"></svg>
-  //         <div class="barcode-info">${bag.barcode} - Rack #${bag.rack_number || "N/A"}</div>
-  //       </div>
-  //     `,
-  //       )
-  //       .join("")}
-  //   </div>
-
-  //   <script>
-  //     document.addEventListener("DOMContentLoaded", function() {
-  //       document.querySelectorAll(".barcode").forEach(function(svg) {
-  //         const code = svg.getAttribute("data-code");
-  //         JsBarcode(svg, code, {
-  //           format: "CODE128",
-  //           width: 3,              // Thicker bars = much easier to scan
-  //           height: 100,           // Taller barcode = better readability
-  //           displayValue: true,
-  //           fontSize: 18,
-  //           margin: 15,            // More quiet zone (white space) around barcode
-  //           flat: true,
-  //           background: "#ffffff",
-  //           lineColor: "#000000",  // Pure black for max contrast
-  //         });
-  //       });
-
-  //       // Auto open print dialog after rendering
-  //       setTimeout(() => {
-  //         window.print();
-  //         // window.close(); // Uncomment if you want auto-close after print
-  //       }, 1200); // Slightly longer delay to ensure all barcodes render
-  //     });
-  //   </script>
-  // </body>
-  // </html>
-  //   `;
-
-  //     printWindow.document.open();
-  //     printWindow.document.write(htmlContent);
-  //     printWindow.document.close();
-  //     printWindow.focus();
-  //   };
   const printBagBarcodes = (bags, vaultName) => {
     const printWindow = window.open("", "_blank", "width=1000,height=900");
 
@@ -454,11 +350,11 @@ const Vault = () => {
     }
     .barcode-label {
       background: white;
-      padding: 20mm;
+      padding: 5mm 20mm;
       text-align: center;
       page-break-inside: avoid;
       break-inside: avoid;
-      min-height: 80mm;
+      min-height: 40mm;
     }
     .barcode-label svg {
       width: 100%;
@@ -602,7 +498,7 @@ const Vault = () => {
   };
 
   return (
-    <div className="p-6">
+    <div>
       <div className="mb-6 flex justify-end">
         <button
           onClick={() => setIsOpenModal(true)}

@@ -1,7 +1,7 @@
 // Sidebar.jsx
 import { motion } from "framer-motion";
 import { FiHome, FiSettings, FiLogOut, FiSend, FiDownload, FiRefreshCw, FiX, FiMenu } from "react-icons/fi";
-import { AiOutlineUser } from "react-icons/ai";
+import { AiOutlineAudit, AiOutlineUser } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import { CiInboxOut, CiVault } from "react-icons/ci";
 import { Logout } from "../../../services/Auth";
@@ -19,10 +19,10 @@ const Sidebar = ({ isMobile, isMinimized, isDrawerOpen, setIsDrawerOpen, sidebar
     { icon: CiVault, label: "Vaults", path: "/vault" },
     { icon: FiSend, label: "Cash In", path: "/cashin" },
     { icon: CiInboxOut, label: "Cash Out", path: "/cashout" },
-    { icon: FiDownload, label: "Reconcile", path: "/reconcile" },
+    { icon: AiOutlineAudit, label: "Reconcile", path: "/reconcile" },
     { icon: Shield, label: "Verifications", path: "/verifications" },
     { icon: FiRefreshCw, label: "History" },
-    { icon: FiSettings, label: "Role & Permissions", path: "/role-and-permissions" },
+    { icon: FiSettings, label: "Permissions", path: "/role-and-permissions" },
     { icon: FiSettings, label: "Settings" },
   ];
 

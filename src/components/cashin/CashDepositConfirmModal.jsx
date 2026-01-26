@@ -12,7 +12,6 @@ export default function CashDepositConfirmModal({
   setShowConfirmModal,
   totalEnteredAmount,
   denominations,
-  onConfirm,
 }) {
   const [selectedVault, setSelectedVault] = useState(null);
   const [selectedBag, setSelectedBag] = useState(null);
@@ -41,7 +40,7 @@ export default function CashDepositConfirmModal({
       const res = await GetVaults();
       setVaults(res?.data || []);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -77,8 +76,6 @@ export default function CashDepositConfirmModal({
     (v) => v.name.toLowerCase().includes(vaultSearch.toLowerCase()) || v.vault_id.toLowerCase().includes(vaultSearch.toLowerCase()),
   );
 
-  console.log({ availableBags });
-
   // // Filter bags
   const filteredBags = availableBags.filter((bag) => {
     const search = bagSearch.toLowerCase();
@@ -93,10 +90,6 @@ export default function CashDepositConfirmModal({
     }
     setShowReconfirm(true);
   };
-
-  {
-    /* Hidden print-only content */
-  }
 
   const handlePrintSuccess = () => {
     if (!printRef.current) {
@@ -140,9 +133,6 @@ export default function CashDepositConfirmModal({
       };
 
       const res = await CreateCashIn(payload);
-      console.log({ res });
-
-      // alert("Cash deposited successfully!\n\nAfter printing the receipt,\nclick OK to continue.");
 
       if (res?.success === true) {
         setTimeout(() => {
@@ -158,8 +148,6 @@ export default function CashDepositConfirmModal({
       }
     } catch (error) {
       console.error(error);
-      // Optional: error toast
-      // addToast({ type: "error", message: "Deposit failed" });
     }
   };
 
@@ -177,7 +165,6 @@ export default function CashDepositConfirmModal({
             color: "#000",
           }}
         >
-
           <hr style={{ border: "1px dashed #000", margin: "12px 0" }} />
 
           {/* Summary info - you should get real values from API if possible */}

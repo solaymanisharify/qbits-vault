@@ -1,11 +1,9 @@
-// src/store/authSlice.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosConfig from "../utils/axiosConfig";
 
 export const fetchUserPermissions = createAsyncThunk("auth/fetchPermissions", async (_, { rejectWithValue }) => {
   try {
     const res = await axiosConfig.get("/user");
-    console.log({res})
     return {
       roles: res.data.roles || [],
       permissions: res.data || [],

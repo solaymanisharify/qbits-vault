@@ -13,15 +13,14 @@ const PermissionInitializer = ({ children }) => {
     const initializePermissions = async () => {
       // If we have a token but no permissions, fetch them
       if (token && permissions.length === 0 && !loading) {
-        console.log("🔄 No permissions found - fetching from API...");
+
         try {
           await dispatch(fetchUserPermissions()).unwrap();
-          console.log("✅ Permissions loaded successfully");
+     
         } catch (error) {
           console.error("❌ Failed to load permissions:", error);
         }
       } else if (token && permissions.length > 0) {
-        console.log("✅ Permissions already loaded:", permissions);
       }
 
       setIsReady(true);

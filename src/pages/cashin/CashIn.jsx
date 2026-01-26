@@ -8,6 +8,8 @@ import JsBarcode from "jsbarcode";
 import CashDepositConfirmModal from "../../components/cashin/CashDepositConfirmModal";
 import { GetCashIn } from "../../services/Cash";
 import VerifierAvatars from "../../components/global/verifierAvatars.jsx/VerifierAvatars";
+import { selectIsLockedForOperations } from "../../store/checkReconcile";
+import { useSelector } from "react-redux";
 
 /*******  1a95057d-95d6-49d7-bca0-0934b457d050  *******/
 const CashIn = () => {
@@ -27,6 +29,8 @@ const CashIn = () => {
 
   // Step 2: Amounts entered per order
   const [amounts, setAmounts] = useState({}); // { orderId: amount }
+  const isLocked = useSelector(selectIsLockedForOperations);
+
 
   // Step 3: Denominations
   const [denominations, setDenominations] = useState({
@@ -114,8 +118,6 @@ const CashIn = () => {
         .map((order) => order.order_id)
         .filter(Boolean);
 
-      console.log({ excludedOrderIds });
-
       const res = await GetOrders({
         page: currentPage,
         search: searchTerm || undefined,
@@ -125,8 +127,6 @@ const CashIn = () => {
 
       const orders = res?.data?.orders || [];
       const pagination = res?.data?.pagination || {};
-
-      console.log({ orders, pagination });
 
       setOrders(orders);
       setPaginationData(pagination);
@@ -147,52 +147,6 @@ const CashIn = () => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Fetch orders only on step 1
-  // useEffect(() => {
-  //   if (step === 1 && cashInsLoaded) {
-  //     setLoading(true);
-
-  //     GetOrders()
-  //       .then((res) => {
-  //         const orders = res?.data?.orders || [];
-  //         const pagination = res?.data?.pagination || {};
-  //         console.log({ pagination });
-
-  //         // Flatten all orders from all cashIns and extract order_ids
-  //         const excludedOrderIds = new Set(
-  //           (Array.isArray(cashIns) ? cashIns : [])
-  //             .flatMap((cashIn) => cashIn.orders || []) // Flatten nested orders arrays
-  //             .map((order) => order.order_id)
-  //             .filter(Boolean) // Remove any undefined/null values
-  //         );
-
-  //         console.log({ excludedOrderIds, cashIns });
-
-  //         // Filter out orders that are already in cashIns
-  //         const filteredOrders = orders.filter((order) => !excludedOrderIds.has(order.order_id));
-
-  //         console.log({
-  //           filteredOrders,
-  //           allOrders: orders,
-  //           excludedCount: excludedOrderIds.size,
-  //         });
-
-  //         setOrders(filteredOrders);
-  //         setPaginationData(pagination);
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching orders:", error);
-  //         setOrders([]);
-  //         setPaginationData({});
-  //       })
-  //       .finally(() => {
-  //         setLoading(false);
-  //       });
-  //   } else if (step === 0) {
-  //     setLoading(true);
-  //     fetchCashInsData();
-  //   }
-  // }, [step, cashInsLoaded]);
 
   const handlePageChange = (page) => {
     setSearchParams((prev) => {
@@ -391,8 +345,7 @@ const CashIn = () => {
       render: (row) => {
         const handleEdit = (e) => {
           e.stopPropagation();
-          // Your edit logic here
-          console.log("Edit vault:", row);
+          // Your edit logic her
           // e.g., open edit modal with row data
           // setEditData(row);
           // setIsEditModalOpen(true);
@@ -401,7 +354,6 @@ const CashIn = () => {
         const handleDelete = (e) => {
           e.stopPropagation();
           // Your delete logic here
-          console.log("Delete vault:", row);
           // e.g., show confirm dialog then call API
           if (window.confirm(`Delete vault "${row.name}"?`)) {
             // DeleteVault(row.id).then(() => fetchVaultData());
@@ -595,8 +547,10 @@ const CashIn = () => {
     },
   ];
 
+  
+
   return (
-    <div className="p-4 bg-gray-50">
+    <div>
       <div className="flex items-center  justify-between p-2">
         <h1 className="text-lg font-semibold text-gray-600">
           {step === 0 && "Cash In List"}
@@ -618,7 +572,7 @@ const CashIn = () => {
           {step === 0 && (
             <div
               onClick={handleNext}
-              className="cursor-pointer transition-all duration-300 ease-in-out px-4 py-1 hover:bg-cyan-100 backdrop-blur-xl rounded-lg overflow-hidden hover:text-cyan-600 bg-cyan-50 text-cyan-500 border border-cyan-300"
+              className={`cursor-pointer ${isLocked ? "hidden" : "flex"} transition-all duration-300 ease-in-out px-4 py-1 hover:bg-cyan-100 backdrop-blur-xl rounded-lg overflow-hidden hover:text-cyan-600 bg-cyan-50 text-cyan-500 border border-cyan-300`}
             >
               <p>Cash In</p>
             </div>

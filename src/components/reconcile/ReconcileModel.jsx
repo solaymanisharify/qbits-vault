@@ -3,10 +3,11 @@ import CustomModal from "../global/modal/CustomModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { GetVaults } from "../../services/Vault";
-import { StartReconcile } from "../../services/Reconcile";
+import { GetLatestReconcile, StartReconcile } from "../../services/Reconcile";
 
 const ReconcileModal = ({ isClose, refetch }) => {
   const [selectedVaultId, setSelectedVaultId] = useState(null);
+  const [latestReconcileData, setLatestReconcileData] = useState([]);
   const [vaults, setVaults] = useState([]);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -15,10 +16,14 @@ const ReconcileModal = ({ isClose, refetch }) => {
   // Current date = today (always)
   const today = new Date().toISOString().split("T")[0];
 
-  const previousReconcileDate = "2025-12-15";
+
 
   useEffect(() => {
     GetVaults().then((res) => setVaults(res.data || []));
+  }, []);
+
+  useEffect(() => {
+    GetLatestReconcile().then((res) => setLatestReconcileData(res?.data || []));
   }, []);
 
   const handleVaultSelect = (vaultId) => {
@@ -30,7 +35,7 @@ const ReconcileModal = ({ isClose, refetch }) => {
     try {
       await StartReconcile({
         vault_id: selectedVaultId,
-        from_date: previousReconcileDate,
+        from_date: latestReconcileData?.to_date,
         to_date: today,
       });
 
@@ -182,7 +187,7 @@ const ReconcileModal = ({ isClose, refetch }) => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Previous Reconcile Date</label>
               <input
                 type="date"
-                value={previousReconcileDate}
+                value={latestReconcileData?.to_date ? latestReconcileData.to_date.split('T')[0] : ''}
                 readOnly
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 cursor-not-allowed"
               />

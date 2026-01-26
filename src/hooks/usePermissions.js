@@ -12,13 +12,12 @@ export const usePermissions = () => {
   const authState = useSelector((state) => state.auth);
   const { user, roles, permissions, loading, error, isHydrated } = authState;
 
-  console.log("usePermissions - Current permissions:", permissions);
+
 
   // These functions read fresh permissions EVERY time they are called
   const hasPermission = useCallback(
     (perm) => {
       const result = Array.isArray(permissions) && permissions.includes(perm);
-      console.log(`hasPermission("${perm}"):`, result, "Available:", permissions);
       return result;
     },
     [permissions]
@@ -27,7 +26,7 @@ export const usePermissions = () => {
   const hasAnyPermission = useCallback(
     (permArray) => {
       const result = Array.isArray(permArray) && permArray.some((p) => hasPermission(p));
-      console.log(`hasAnyPermission([${permArray}]):`, result);
+
       return result;
     },
     [permissions, hasPermission]
@@ -36,7 +35,6 @@ export const usePermissions = () => {
   const hasRole = useCallback(
     (role) => {
       const result = Array.isArray(roles) && roles.includes(role);
-      console.log(`hasRole("${role}"):`, result);
       return result;
     },
     [roles]

@@ -33,7 +33,7 @@ export default function CashOutConfirmationModal({ amounts, selectedRows, select
       const res = await GetVaults();
       setVaults(res?.data || []);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -65,17 +65,16 @@ export default function CashOutConfirmationModal({ amounts, selectedRows, select
   }, [selectedVault]);
 
   // Filter vaults
-  const filteredVaults = vaults.filter(
-    (v) => v.name.toLowerCase().includes(vaultSearch.toLowerCase()) || v.vault_id.toLowerCase().includes(vaultSearch.toLowerCase()),
-  );
+  // const filteredVaults = vaults.filter(
+  //   (v) => v.name.toLowerCase().includes(vaultSearch.toLowerCase()) || v.vault_id.toLowerCase().includes(vaultSearch.toLowerCase()),
+  // );
 
-  console.log({ availableBags });
 
   // // Filter bags
-  const filteredBags = availableBags.filter((bag) => {
-    const search = bagSearch.toLowerCase();
-    return bag.barcode?.toLowerCase().includes(search) || bag.rack_number?.toString().includes(search);
-  });
+  // const filteredBags = availableBags.filter((bag) => {
+  //   const search = bagSearch.toLowerCase();
+  //   return bag.barcode?.toLowerCase().includes(search) || bag.rack_number?.toString().includes(search);
+  // });
 
   // First confirm button → opens reconfirm modal
   const handleFirstConfirm = () => {
@@ -91,8 +90,7 @@ export default function CashOutConfirmationModal({ amounts, selectedRows, select
         cash_out_amount: selectedRows?.reduce((acc, bag) => acc + bag?.current_amount, 0),
       };
 
-      const res = await CreateCashOut(payload);
-      console.log({ res });
+      await CreateCashOut(payload);
 
       setShowReconfirm(false);
       setShowConfirmModal(false);
@@ -112,7 +110,6 @@ export default function CashOutConfirmationModal({ amounts, selectedRows, select
 
   if (!showConfirmModal) return null;
 
-  console.log({ selectedRows });
 
   return (
     <>
@@ -189,11 +186,9 @@ export default function CashOutConfirmationModal({ amounts, selectedRows, select
                   const combinedDenominations = {};
 
                   selectedRows?.forEach((row) => {
-                    console.log({ row });
                     try {
                       if (row.denominations) {
                         const parsed = JSON.parse(row.denominations);
-                        console.log({ parsed });
 
                         // Add to combined totals
                         Object.entries(parsed).forEach(([note, count]) => {

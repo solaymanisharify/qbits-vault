@@ -10,8 +10,6 @@ const Can = ({ perform, anyOf, children, fallback = null }) => {
 
   const allowed = anyOf ? hasAnyPermission(anyOf) : perform ? hasPermission(perform) : true;
 
-  console.log(`Can component - perform: ${perform}, anyOf: ${anyOf}, allowed: ${allowed}`);
-
   return allowed ? children : fallback;
 };
 

@@ -57,7 +57,6 @@ const Profile = () => {
 
   useEffect(() => {
     GetUser(user?.id).then((res) => {
-      console.log({ res });
       setName(res?.data?.data?.name);
       setEmail(res?.data?.data?.email);
       setPhone(res?.data?.data?.phone);
@@ -96,16 +95,12 @@ const Profile = () => {
 
     // setIsSubmitting(true);
 
-    console.log({ data });
-
     try {
       // Replace with your actual API call
-      const response = await ChangePassword(user?.id, {
+      await ChangePassword(user?.id, {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
-
-      console.log({ response });
 
       // Success
       setSuccessMessage("Password changed successfully!");

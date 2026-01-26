@@ -1,33 +1,13 @@
 // Dashboard.jsx
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  FiMenu,
-  FiX,
-  FiHome,
-  FiSend,
-  FiDownload,
-  FiSettings,
-  FiLogOut,
-  FiBell,
-  FiSearch,
-  FiChevronDown,
   FiTrendingUp,
   FiTrendingDown,
-  FiCopy,
-  FiEye,
-  FiRefreshCw,
 } from "react-icons/fi";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { GetDashboardReports } from "../../../services/Dashboard";
 
-// Mock Data
-// const transactions = [
-//   { id: "TXN001", date: "Dec 03, 2025", type: "Received", from: "Alice Johnson", amount: "+2.45 BTC", status: "Completed" },
-//   { id: "TXN002", date: "Dec 02, 2025", type: "Sent", to: "Bob Smith", amount: "-0.85 BTC", status: "Completed" },
-//   { id: "TXN003", date: "Dec 01, 2025", type: "Received", from: "Exchange Deposit", amount: "+5.20 BTC", status: "Pending" },
-//   { id: "TXN004", date: "Nov 30, 2025", type: "Sent", to: "Savings Vault", amount: "-3.00 BTC", status: "Completed" },
-// ];
 
 const chartData = [
   { name: "Jan", value: 24000 },
@@ -48,8 +28,6 @@ export default function Dashboard() {
       setDashboardData(res.data);
     });
   }, []);
-
-  console.log({ dashboardData });
 
   return (
     <div className=" h-screen bg-gray-50 px-4">

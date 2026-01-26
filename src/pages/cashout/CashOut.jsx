@@ -9,6 +9,8 @@ import { GetVaultBagById, GetVaults } from "../../services/Vault";
 import { useSearchParams } from "react-router-dom";
 import CashOutConfirmationModal from "../../components/cashout/CashOutConfirmationModal";
 import { GetCashOuts } from "../../services/Cash";
+import { useSelector } from "react-redux";
+import { selectIsLockedForOperations } from "../../store/checkReconcile";
 
 const CashOut = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,12 +28,11 @@ const CashOut = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedBags, setSelectedBags] = useState([]);
   const [selectedBagsTotalAmount, setSelectedBagsTotalAmount] = useState(0);
+  const isLocked = useSelector(selectIsLockedForOperations);
 
   useEffect(() => {
     // Fetch vaults
     GetVaults().then((res) => setVaults(res.data || []));
-    // Fetch past cash outs (assume API)
-    // GetCashOuts().then((res) => setCashOuts(res.data || []));
   }, []);
 
   // Sync URL step
@@ -49,7 +50,7 @@ const CashOut = () => {
     fetchCashOutLits();
   }, []);
 
-  console.log({ cashOuts });
+
 
   const fetchVaultBagsByVaultId = async () => {
     if (selectedVaultId) {
@@ -70,7 +71,6 @@ const CashOut = () => {
     fetchVaultBagsByVaultId();
   }, [selectedVaultId]);
 
-  console.log({ selectedRows });
 
   const handleVaultSelect = (vaultId) => {
     setSelectedVaultId(vaultId);
@@ -94,13 +94,9 @@ const CashOut = () => {
       // Use your existing service or direct fetch
       const res = await GetVaultBagById(selectedVaultId, queryString);
       // Assuming your service supports params
-
-      console.log({ res });
-
       if (res.success) {
         const { matched_bags = [], total_matched = 0 } = res.data;
 
-        console.log({ matched_bags });
         setBags(res?.data);
 
         setSuggestedBags(matched_bags);
@@ -209,7 +205,6 @@ const CashOut = () => {
     fetchCashOutLits();
   };
 
-  console.log({ showConfirmModal });
 
   const columnsCashOutLists = [
     {
@@ -230,7 +225,6 @@ const CashOut = () => {
       className: "w-50", // Adjust width as needed
       render: (row) => (
         <div className="flex flex-wrap items-center gap-2 -ml-1 -mt-1">
-          {console.log({ row })}
           {/* Main horizontal flex container */}
           {row?.cash_out_bags?.length > 0 ? (
             row.cash_out_bags.map((bag, i) => (
@@ -313,7 +307,6 @@ const CashOut = () => {
         const handleEdit = (e) => {
           e.stopPropagation();
           // Your edit logic here
-          console.log("Edit vault:", row);
           // e.g., open edit modal with row data
           // setEditData(row);
           // setIsEditModalOpen(true);
@@ -322,7 +315,6 @@ const CashOut = () => {
         const handleDelete = (e) => {
           e.stopPropagation();
           // Your delete logic here
-          console.log("Delete vault:", row);
           // e.g., show confirm dialog then call API
           if (window.confirm(`Delete vault "${row.name}"?`)) {
             // DeleteVault(row.id).then(() => fetchVaultData());
@@ -390,35 +382,13 @@ const CashOut = () => {
       className: "w-20",
       render: (row) => <span className="">{row?.current_amount}</span>,
     },
-    // {
-    //   title: "Requested at",
-    //   key: "created_at",
-    //   className: "w-34",
-    //   render: (row) => <span className="">{dayjs(row.created_at).format("DD MMM, YYYY")}</span>,
-    // },
-
-    // {
-    //   title: "Status",
-    //   key: "created_at",
-    //   className: "w-32",
-    //   render: (row) => (
-    //     <span
-    //       className={`capitalize text-xs ${
-    //         row?.status === "pending" ? "bg-yellow-50 border border-yellow-200 text-yellow-600" : "bg-green-50 border border-green-200 text-green-500"
-    //       } px-2.5 py-1  rounded-full`}
-    //     >
-    //       {row?.status}
-    //     </span>
-    //   ),
-    // },
     {
       title: "Select",
       key: "selection",
       className: "w-40",
       render: (row) => {
         const isSelected = selectedRows.some((selected) => selected.id === row.id);
-        console.log({ row });
-
+  
         const toggleSelection = (e) => {
           e.stopPropagation();
           setSelectedRows((prev) => {
@@ -503,7 +473,7 @@ const CashOut = () => {
           {step === 0 && (
             <div
               onClick={handleNext}
-              className="cursor-pointer transition-all duration-300 ease-in-out px-4 py-1 hover:bg-cyan-100 backdrop-blur-xl rounded-lg overflow-hidden hover:text-cyan-600 bg-cyan-50 text-cyan-500 border border-cyan-300"
+              className={`cursor-pointer ${isLocked ? "hidden" : ""} transition-all duration-300 ease-in-out px-4 py-1 hover:bg-cyan-100 backdrop-blur-xl rounded-lg overflow-hidden hover:text-cyan-600 bg-cyan-50 text-cyan-500 border border-cyan-300`}
             >
               <p>Cash Out</p>
             </div>
@@ -535,14 +505,6 @@ const CashOut = () => {
             </div>
           )}
 
-          {/* {step === 3 && totalDenominationAmount === totalEnteredAmount && (
-            <div
-              onClick={handleFinish}
-              className="cursor-pointer transition-all duration-300 ease-in-out px-4 py-1 hover:bg-cyan-500 backdrop-blur-xl rounded-lg overflow-hidden text-cyan-300 bg-cyan-50 border border-cyan-500/50 font-semibold"
-            >
-              <p>Finish</p>
-            </div>
-          )} */}
         </div>
       </div>
       {step === 1 && (

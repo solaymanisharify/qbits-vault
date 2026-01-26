@@ -10,6 +10,7 @@ import { BarcodeScannerModal } from "./BarcodeScannerModal";
 import { GetPendingReconciliations, VerifyReconcile } from "../../services/Reconcile";
 import ReconcileVerifyModel from "../../components/verifications/reconcile/ReconcileVerifyModel";
 import ReconcileStart from "../../components/verifications/reconcile/ReconcileStart";
+import { selectIsLockedForOperations } from "../../store/checkReconcile";
 
 const Verifications = () => {
   const { addToast } = useToast();
@@ -20,11 +21,11 @@ const Verifications = () => {
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [scannedBarcode, setScannedBarcode] = useState("");
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const isLocked = useSelector(selectIsLockedForOperations);
 
   const permissions = useSelector((state) => state.auth.permissions || []);
   const hasPermission = (perm) => permissions.includes(perm);
 
-  console.log({ permissions });
 
   // Verify Modal State
   const [openVerifyModal, setOpenVerifyModal] = useState(false);
@@ -129,30 +130,25 @@ const Verifications = () => {
 
   // Open verify modal
   const handleVerifyClick = (cashIn, action = "verify") => {
-    console.log({ cashIn });
     setSelectedCashIn(cashIn);
     setVerifyAction(action);
     setNote("");
     setOpenVerifyModal(true);
   };
   const handleApproveClick = (cashIn, action = "approve") => {
-    console.log({ cashIn });
     setSelectedCashIn(cashIn);
     setVerifyAction(action);
     setNote("");
     setOpenApproveModal(true);
   };
 
-  console.log({ selectedCashIn });
   const handleCashOutVerifyClick = (cashOut, action = "verify") => {
-    console.log({ cashOut });
     setSelectedCashOut(cashOut);
     setVerifyAction(action);
     setNote("");
     setOpenVerifyModal(true);
   };
   const handleCashOutApproveClick = (cashOut, action = "approve") => {
-    console.log({ cashOut });
     setSelectedCashOut(cashOut);
     setVerifyAction(action);
     setNote("");
@@ -161,7 +157,6 @@ const Verifications = () => {
 
   // reconcile
   const handleReconcileVerifyClick = (reconcile) => {
-    console.log({ reconcile });
     setSelectedReconcile(reconcile);
     setVerifyAction("verify");
     setNote("");
@@ -174,7 +169,6 @@ const Verifications = () => {
     setOpenReconcileStartModel(true);
   };
 
-  console.log({ selectedCashOut });
 
   // Submit verification
   const handleVerifySubmit = async () => {
@@ -197,8 +191,6 @@ const Verifications = () => {
       setOtpError("Invalid OTP");
       return;
     }
-
-    console.log({ verifyAction });
 
     try {
       if (verifyAction === "verify") {
@@ -274,6 +266,10 @@ const Verifications = () => {
     }
 
     addToast({ type: "success", message: "Verification successful!" });
+  };
+
+  const refech = () => {
+    fetchPendingReconciliations();
   };
 
   const cashInPendingColumns = [
@@ -363,11 +359,9 @@ const Verifications = () => {
     {
       title: "Action",
       key: "actions",
-      className: "w-64",
+      className: `w-64 ${isLocked ? "hidden" : "flex"}`,
       render: (row) => {
         const isVerified = row?.required_verifiers?.find((verifier) => verifier.user_id === user?.id)?.verified;
-
-        console.log({ isVerified });
 
         return (
           <div className="flex items-center justify-start gap-3 py-2">
@@ -487,26 +481,12 @@ const Verifications = () => {
     {
       title: "Action",
       key: "actions",
-      className: "w-64",
+      className: `w-64`,
       render: (row) => {
         const isVerified = row?.required_verifiers?.find((verifier) => verifier.user_id === user?.id)?.verified;
 
-        console.log({ isVerified });
-
         return (
-          <div className="flex items-center justify-start gap-3 py-2">
-            {/* Verify Button */}
-            {/* {hasPermission("cash-in.verify") && row.verifier_status === "pending" && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleVerifyClick(row, "verify")}
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-medium shadow-md flex items-center gap-2"
-            >
-              <Check className="w-5 h-5" />
-              Verify
-            </motion.button>
-          )} */}
+          <div className={`${isLocked ? "hidden" : "flex"} items-center justify-start gap-3 py-2`}>
             {hasPermission("cash-out.verify") && !isVerified && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -565,17 +545,17 @@ const Verifications = () => {
       render: (row) => <span className="font-mono text-cyan-400">{row?.vault.vault_id}</span>,
     },
     {
-      title: "Expected Amount(৳)",
+      title: "Exp. Amount(৳)",
       key: "bag_barcode",
       className: "w-34",
-      render: (row) => <span className="">{parseFloat(row?.expected_balance).toLocaleString()}</span>,
+      render: (row) => <span className="">{row?.vault?.bags?.reduce((sum, bag) => sum + parseFloat(bag.current_amount || 0), 0)}</span>,
     },
 
     {
-      title: "Amount (৳)",
+      title: "CNT. Amount(৳)",
       key: "cash_in_amount",
       className: "w-40",
-      render: (row) => <span className="">{parseFloat(row.counted_balance).toLocaleString()}</span>,
+      render: (row) => <span className="">{row?.vault?.bags?.reduce((sum, bag) => sum + parseFloat(bag.current_amount || 0), 0)}</span>,
     },
     {
       title: "Verifier Status",
@@ -642,8 +622,6 @@ const Verifications = () => {
       render: (row) => {
         const isVerified = row?.required_verifiers?.find((verifier) => verifier.user_id === user?.id)?.verified;
 
-        console.log({ isVerified });
-
         return (
           <div className="flex items-center justify-start gap-3 py-2">
             {hasPermission("reconciliation.verify") && !isVerified && (
@@ -651,7 +629,7 @@ const Verifications = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleReconcileVerifyClick(row)}
-                className="px-4 py-1 bg-cyan-50 cursor-pointer text-cyan-500 border border-cyan-200 rounded-full font-medium  flex items-center gap-2"
+                className="px-4 text-xs py-2 bg-cyan-50 cursor-pointer text-cyan-500 border border-cyan-200 rounded-full font-medium  flex items-center gap-2"
               >
                 {/* <Check className="w-5 h-5" /> */}
                 Verify
@@ -665,11 +643,11 @@ const Verifications = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleReconcileApproveClick(row)}
-                  className={`px-4 py-1 bg-emerald-50 cursor-pointer ${
+                  className={`px-4 py-2 text-xs bg-emerald-50 cursor-pointer ${
                     isVerified ? "flex" : "hidden"
                   } text-green-500 border border-emerald-200 rounded-full  flex items-center gap-2`}
                 >
-                  Approve
+                  Start Reconcile
                 </motion.button>
               </>
             )}
@@ -680,7 +658,7 @@ const Verifications = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleCashOutVerifyClick(row, "reject")}
-                className="px-4 py-1 bg-pink-50 cursor-pointer text-pink-400 border border-pink-200  rounded-full   flex items-center gap-2"
+                className="px-4 py-2 text-xs bg-pink-50 cursor-pointer text-pink-400 border border-pink-200  rounded-full   flex items-center gap-2"
               >
                 Reject
               </motion.button>
@@ -690,8 +668,6 @@ const Verifications = () => {
       },
     },
   ];
-
-  console.log({ scannedBarcode });
 
   return (
     <div className="min-h-screen">
@@ -1132,7 +1108,8 @@ const Verifications = () => {
             selectedReconcile={selectedReconcile}
             selectedCashIn={selectedCashIn}
             setOpenApproveModal={setOpenApproveModal}
-            isCloseModal={()=>setOpenReconcileStartModel(false)}
+            isCloseModal={() => setOpenReconcileStartModel(false)}
+            refech={refech}
             // handleApproveSubmit={handleApproveSubmit}
           />
         )}

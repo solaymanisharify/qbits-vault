@@ -15,7 +15,6 @@ export const BarcodeScannerModal = ({ isOpen, onClose, onScanned }) => {
       .decodeFromVideoDevice(null, videoRef.current, (result, err) => {
         if (result) {
           const code = result.getText();
-          console.log("Scanned:", code);
           
           // Vibrate if supported
           if (navigator.vibrate) {
@@ -54,7 +53,7 @@ export const BarcodeScannerModal = ({ isOpen, onClose, onScanned }) => {
       </div>
 
       {/* Video */}
-      <div className="flex-1 relative">
+      <div className="flex-1 -top-[100px] relative">
         <video
           ref={videoRef}
           className="w-full h-full object-cover"

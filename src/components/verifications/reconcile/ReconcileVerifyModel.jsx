@@ -1,9 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import CustomModal from "../../global/modal/CustomModal";
 
-const ReconcileVerifyModel = ({ setOpenReconcileVerifyModel, selectedReconcile, verifyAction, note, setNote,handleReconcileVerifySubmit }) => {
-  console.log({ selectedReconcile });
-
+const ReconcileVerifyModel = ({ setOpenReconcileVerifyModel, selectedReconcile, verifyAction, note, setNote, handleReconcileVerifySubmit }) => {
 
   return (
     <>

@@ -269,7 +269,6 @@ const User = () => {
     },
   ];
 
-  console.log({ selectedUser });
 
   const togglePermission = async (permId) => {
     // Get current effective permissions
@@ -290,7 +289,6 @@ const User = () => {
       permissions: newPermissionsList,
     }));
 
-    console.log("Sending permissions:", newPermissionsList);
 
     try {
       // Correct ID: selectedUser.data.id
@@ -337,7 +335,7 @@ const User = () => {
   };
 
   return (
-    <div className="p-4">
+    <div>
       <div className="flex justify-end">
         <PermissionButton permission="user.create">
           <button
